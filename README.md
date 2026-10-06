@@ -1,33 +1,59 @@
 # hkmo-open-data-mcp
 
-[中文](#中文) · [English](#english)
+**繁體中文** | [English](#english)
 
-A zero-hosting **Agent Skill + local MCP server** for discovering and accessing **Hong Kong and Macao government open data** with strict region resolution and no semantic substitution.
+一個毋須自行託管伺服器的 **Agent Skill + 本機 MCP Server**，用於讓 AI 尋找、驗證及讀取 **香港與澳門政府公開數據**。
 
-一個毋須自行託管伺服器的 **Agent Skill + 本機 MCP Server**，用於尋找及存取**香港與澳門政府公開數據**；地域不明時會先詢問使用者，並禁止以「相近但不同」的資料集代替原本要求。
+核心原則只有兩個，而且是硬性規則：
+
+1. **香港／澳門不明確時，必須先問使用者。**
+2. **找不到完全相符的資料時，回覆未找到；不得用相近但不同的資料代替。**
+
+> 例如使用者只說「幫我搵停車場空位資料」，Agent 必須先問「你想查香港定澳門嘅資料？」  
+> 如果使用者要求「澳門停車場實時空位」，只有停車場位置、收費或歷史空位資料時，必須視為 **NOT_FOUND**，不可當成答案。
 
 ---
 
-## 中文
+## 繁體中文
+
+### 專案目標
+
+`hkmo-open-data-mcp` 希望提供一個可供 ChatGPT、Claude、Codex 或其他支援 MCP / Agent Skills 的 AI client 使用的政府 Open Data gateway。
+
+專案由兩部分組成：
+
+- **Skill**：規定 Agent 如何判斷地域、搜尋資料、處理 exact match，以及何時必須停止並回覆未找到。
+- **Local MCP Server**：真正執行政府資料搜尋、官方 URL 驗證、HTTP request、API 呼叫及安全限制。
+
+MCP 使用本機 `stdio` 執行，因此 **不需要 VPS、雲端後端或持續伺服器費用**。
 
 ### 設計原則
 
-- **地域必須明確**：如果使用者沒有清楚指出香港或澳門，必須先反問「你想查香港定澳門嘅資料？」；不可自行推斷。
-- **只接受精確資料**：如果找不到完全符合要求的政府公開數據，就回覆未找到。
-- **禁止語意替代**：相近資料只能列作相關候選，不能當成使用者要求的資料。
-- **預設只使用官方來源**：只接受 `*.gov.hk`、`*.gov.mo` 的 HTTPS 來源。
-- **零託管成本**：使用本機 `stdio` MCP，不需要 VPS、雲端後端或長期伺服器費用。
-- **不猜測 Token / Header**：API token、cookie、header、參數等必須由官方文件或官方流程驗證後才可使用；私人 secrets 只保留在使用者本機。
+- **地域必須明確**  
+  如果要求沒有明確指出香港或澳門，必須先反問，不可自行推斷。
 
-### 為甚麼同時使用 Skill + MCP？
+- **Exact data only**  
+  資料內容、指標、時間性、地域及粒度必須與要求相符。
 
-**Skill** 負責約束 AI 行為，例如地域判斷、exact-match 規則及禁止資料替代；**MCP** 則負責可驗證的資料搜尋、官方 URL allowlist、HTTP request、response-size limit 及 API 存取。
+- **禁止語意替代**  
+  相近資料可以列為 related candidate，但不可冒充使用者真正要求的資料。
+
+- **官方來源優先且預設唯一可信來源**  
+  預設只接受 `*.gov.hk`、`*.gov.mo` 的 HTTPS 來源。
+
+- **不猜測 API Token / Header**  
+  API key、bearer token、cookie、CSRF token、Referer、request parameter 等，必須由官方文件或官方公開流程確認。
+
+- **Secrets 只留在本機**  
+  私人 credential 不應寫入 Skill、registry、log 或 Git repository。
 
 ### 安裝
 
 需要 Node.js 20 或以上版本。
 
 ```bash
+git clone https://github.com/HiNesslio/hkmo-open-data-mcp.git
+cd hkmo-open-data-mcp
 npm install
 npm run build
 ```
@@ -38,7 +64,7 @@ npm run build
 node dist/src/index.js
 ```
 
-使用 MCP Inspector 測試：
+使用 MCP Inspector：
 
 ```bash
 npx @modelcontextprotocol/inspector node dist/src/index.js
@@ -61,79 +87,171 @@ Client 設定範例：
 
 #### `resolve_region`
 
-判斷要求屬於香港或澳門。如果地域不明，會返回澄清問題而不是猜測。
+判斷要求屬於香港或澳門。
+
+如果地域不明，返回：
+
+```text
+你想查香港定澳門嘅資料？
+```
+
+而不是自行猜測。
 
 #### `search_datasets`
 
-搜尋官方 metadata / registry，並套用 strict matching。`discoveryKeywords` 只可用於擴展搜尋詞，不可令相近資料變成 exact match。
+搜尋官方 metadata / registry，並套用 strict matching。
+
+`discoveryKeywords` 可以使用中文、英文或葡文同義詞幫助搜尋候選資料，但 **不能降低最後 exact-match 標準**。
 
 #### `inspect_official_url`
 
-只讀取 allowlist 內的香港／澳門政府 HTTPS URL，並設有 timeout 及 response-size limits。
+讀取並檢查官方香港／澳門政府 HTTPS URL。
+
+內建：
+
+- government-domain allowlist
+- HTTPS only
+- redirect destination revalidation
+- request timeout
+- response-size limit
 
 #### `call_official_api`
 
-呼叫已驗證的政府 API endpoint。Method、headers、body 及認證資料均不得由模型自行猜測。
+呼叫已經驗證的政府 API endpoint。
 
-### 現有 Adapter
+Agent 不得自行發明：
 
-#### 香港
+- API token
+- cookie
+- authentication header
+- CSRF token
+- Referer
+- request parameter
 
-使用 DATA.GOV.HK 官方 CKAN metadata API（`package_list` / `package_show`）。
+### 香港 Adapter
 
-#### 澳門
+香港目前使用 **DATA.GOV.HK 官方 CKAN metadata API**：
 
-v0.1 先使用可審核的本機 registry 記錄已驗證的 `data.gov.mo` dataset，並可透過 `inspect_official_url` 檢查官方 dataset detail / API URL。直到有穩定、已確認的官方 machine-search endpoint 前，專案不會自行假設或 reverse-engineer 搜尋 API。
+- `package_list`
+- `package_show`
 
-### Strict matching 範例
+搜尋結果仍會經過 strict matching，metadata 搜到「相關」不代表一定符合使用者要求。
 
-使用者要求：**澳門停車場實時空位**。
+### 澳門 Adapter
 
-以下資料均不可視為符合要求：
+澳門 v0.1 採用較保守策略：
 
-- 停車場位置；
-- 停車場收費；
-- 開放時間；
-- 歷史空位；
-- 道路交通狀況。
+1. 使用本機 registry 保存已驗證的 `data.gov.mo` dataset；
+2. 只接受官方 `data.gov.mo` / `api.data.gov.mo` URL 作進一步 inspection；
+3. 如果未找到 exact dataset，返回未找到或 discovery limited；
+4. 在未確認穩定官方 machine-search endpoint 前，不自行假設或 reverse-engineer 一個搜尋 API。
 
-這些項目最多只能顯示為「相關候選」，不得代替使用者原本要求，更不得自動呼叫其 API 當成答案。
+### Strict Matching 範例
 
-### Security
+使用者要求：
 
-HTTP gateway 會拒絕非政府 domain、非 HTTPS URL、過大的 response 以及超時 request，redirect destination 亦會再次驗證。詳情見 [`SECURITY.md`](SECURITY.md)。
+> 澳門停車場實時空位
+
+以下資料 **全部不能視為符合要求**：
+
+- 停車場位置
+- 停車場收費
+- 停車場開放時間
+- 歷史空位紀錄
+- 道路交通狀況
+
+正確結果應是：
+
+```text
+未找到完全符合要求的政府公開數據。
+```
+
+除非找到並驗證真正提供「澳門停車場實時空位」的官方 dataset/API。
 
 ### Agent Skill
 
-Agent-facing policy 位於 [`skill/SKILL.md`](skill/SKILL.md)。支援 Agent Skills 的 client 可以直接採用或按需要調整。
+Agent policy 位於：
+
+```text
+skill/SKILL.md
+```
+
+主要流程：
+
+```text
+User request
+    ↓
+Resolve HK / MO
+    ↓
+Region unclear? ── Yes ──→ Ask user and STOP
+    ↓ No
+Search official datasets
+    ↓
+Exact match?
+ ├─ No  → NOT_FOUND
+ └─ Yes
+    ↓
+Verify official detail / endpoint
+    ↓
+Verify method / params / headers / auth
+    ↓
+Call official API
+    ↓
+Return data
+```
+
+### Security
+
+HTTP gateway 將模型提供的 URL / headers 視為不可信輸入。
+
+詳細安全政策見 [SECURITY.md](SECURITY.md)。
 
 ---
 
+<a id="english"></a>
+
 ## English
+
+`hkmo-open-data-mcp` is a **zero-hosting Agent Skill + local MCP server** for discovering, validating, and accessing **Hong Kong and Macao government open data**.
+
+It follows two non-negotiable rules:
+
+1. **If Hong Kong vs Macao is unclear, ask the user first.**
+2. **If the exact requested data cannot be found, return not found. Never substitute a similar dataset.**
+
+> If a user asks only for “car park vacancy data”, the agent must first ask whether they mean Hong Kong or Macao.  
+> If the user requests “real-time Macao car-park vacancy” but only location, tariff, or historical vacancy datasets exist, the request must be treated as **NOT_FOUND**.
+
+### Architecture
+
+The project contains two layers:
+
+- **Agent Skill** — controls region clarification, strict matching, no-substitution behaviour, and the required workflow.
+- **Local MCP Server** — performs deterministic discovery, official-domain validation, HTTP requests, response limits, and verified API access.
+
+The MCP server runs locally over `stdio`, so **no VPS, hosted backend, or recurring server bill is required**.
 
 ### Core behaviour
 
-- **Region must be explicit.** If Hong Kong vs Macao is unclear, ask the user which region they mean. Never guess.
-- **Exact data only.** If the requested government dataset cannot be found exactly, return **not found**.
-- **No semantic substitution.** Similar datasets may be shown as related candidates, but must never replace the requested data.
-- **Official sources by default.** Only HTTPS sources under `*.gov.hk` and `*.gov.mo` are accepted.
-- **Zero hosting cost.** The MCP runs locally over `stdio`; no VPS, hosted backend, or recurring server bill is required.
-- **Never invent tokens or headers.** Authentication values, cookies, headers, and parameters must be verified from official documentation or an official request flow. Private secrets remain local.
-
-### Why Skill + MCP?
-
-The **Skill** controls agent behaviour, including region clarification, exact-match requirements, and the no-substitution rule. The **MCP server** performs deterministic discovery, official URL allowlisting, HTTP requests, response limits, and API access.
+- **Region must be explicit.** Never infer HK vs MO when the request is ambiguous.
+- **Exact data only.** Metric, geography, time basis, granularity, and real-time/static semantics must match.
+- **No semantic substitution.** Related datasets may be shown as candidates, but never used as replacements.
+- **Official government sources by default.** Only HTTPS sources under `*.gov.hk` and `*.gov.mo` are accepted.
+- **Never invent authentication.** Tokens, cookies, headers, CSRF values, Referer values, and request parameters must be verified.
+- **Private secrets stay local.**
 
 ### Install
 
 Node.js 20 or newer is required.
 
 ```bash
+git clone https://github.com/HiNesslio/hkmo-open-data-mcp.git
+cd hkmo-open-data-mcp
 npm install
 npm run build
 ```
 
-Run directly:
+Run:
 
 ```bash
 node dist/src/index.js
@@ -162,29 +280,41 @@ Example client configuration:
 
 #### `resolve_region`
 
-Returns HK or MO, or a clarification question if the region is not explicit.
+Returns HK or MO. If the region is not explicit, it returns a clarification question instead of guessing.
 
 #### `search_datasets`
 
-Searches official metadata / registry and applies strict matching. `discoveryKeywords` may broaden discovery vocabulary, but can never turn a related dataset into an exact match.
+Searches official metadata / registry and applies strict matching.
+
+`discoveryKeywords` may broaden multilingual discovery, but they can never relax the final exact-match requirement.
 
 #### `inspect_official_url`
 
-Fetches only allowlisted Hong Kong or Macao government HTTPS URLs, with timeout and response-size limits.
+Fetches only allowlisted Hong Kong or Macao government HTTPS URLs with redirect validation, timeout, and response-size limits.
 
 #### `call_official_api`
 
-Calls a verified government API endpoint using explicit method, headers, and body. The model must not invent authentication values or request parameters.
+Calls a verified official government API endpoint.
 
-### Current adapters
+The model must not invent authentication values, headers, cookies, tokens, or request parameters.
 
-#### Hong Kong
+### Hong Kong adapter
 
-Uses DATA.GOV.HK's official CKAN metadata APIs (`package_list` and `package_show`).
+Hong Kong discovery currently uses the official **DATA.GOV.HK CKAN metadata APIs**:
 
-#### Macao
+- `package_list`
+- `package_show`
 
-v0.1 uses a small, auditable local registry for verified `data.gov.mo` datasets, plus `inspect_official_url` for official dataset-detail and API URLs. Until a stable official machine-search endpoint is verified, the project intentionally does not assume or reverse-engineer one.
+Candidates still pass through strict matching before they can be considered exact.
+
+### Macao adapter
+
+Macao v0.1 intentionally uses a conservative approach:
+
+1. a local registry for verified `data.gov.mo` datasets;
+2. inspection of official `data.gov.mo` / `api.data.gov.mo` URLs only;
+3. NOT_FOUND / discovery-limited results when no exact dataset is verified;
+4. no assumed or reverse-engineered machine-search API until a stable official endpoint is confirmed.
 
 ### Strict matching example
 
@@ -196,15 +326,45 @@ A request for **real-time Macao car-park vacancy** is not satisfied by:
 - historical vacancy;
 - road traffic conditions.
 
-Those may be returned only as *related candidates*. They must never be called or presented as the requested data.
-
-### Security
-
-The HTTP gateway rejects non-government hosts, non-HTTPS URLs, oversized responses, and long-running calls. Redirect destinations are revalidated. See [`SECURITY.md`](SECURITY.md).
+Those may be shown only as related candidates.
 
 ### Agent Skill
 
-The agent-facing policy is in [`skill/SKILL.md`](skill/SKILL.md). Copy or adapt it for clients that support Agent Skills.
+The agent-facing policy is located at:
+
+```text
+skill/SKILL.md
+```
+
+Expected workflow:
+
+```text
+User request
+    ↓
+Resolve HK / MO
+    ↓
+Region unclear? ── Yes ──→ Ask user and STOP
+    ↓ No
+Search official datasets
+    ↓
+Exact match?
+ ├─ No  → NOT_FOUND
+ └─ Yes
+    ↓
+Verify official detail / endpoint
+    ↓
+Verify method / params / headers / auth
+    ↓
+Call official API
+    ↓
+Return data
+```
+
+### Security
+
+Model-supplied URLs and headers are treated as untrusted input.
+
+See [SECURITY.md](SECURITY.md) for the security policy.
 
 ## License
 
