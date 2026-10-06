@@ -1,0 +1,16 @@
+{
+  "source": "https://data.gov.mo/",
+  "policy": "Registry entries are discovery hints only. The model must verify the official detail page/API before claiming a dataset is exact.",
+  "datasets": [
+    {
+      "id": "e7b2e84d-3333-42f0-b676-64ce95306f0d",
+      "title": "巴士路線資料",
+      "aliases": ["BUS_POLE", "ROUTE_NETWORK", "BUS_ROUTE_SEQ", "bus route"],
+      "description": "澳門交通事務局巴士站、路線網絡及路線與站點關聯資料。",
+      "provider": "交通事務局",
+      "formats": ["SHAPEFILE", "XLS"],
+      "detailUrl": "https://data.gov.mo/Detail?id=e7b2e84d-3333-42f0-b676-64ce95306f0d",
+      "resourceUrls": []
+    }
+  ]
+}
