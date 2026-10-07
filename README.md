@@ -130,21 +130,25 @@ Agent 不得自行發明：
 
 ### 香港 Adapter
 
-香港目前使用 **DATA.GOV.HK 官方 CKAN metadata API**：
+香港採用 **verified curated registry + 官方 DATA.GOV.HK metadata fallback**：
 
-- `package_list`
-- `package_show`
+1. `registry/hk.json` 保存高可信、已核實的常用 dataset（交通、天氣、人口、公共設施等）；
+2. verified exact registry hit 會直接返回，不會額外掃 catalog；
+3. registry 未命中時，先使用 DATA.GOV.HK 官方「開放數據的數據集清單」作候選索引，再用 CKAN `package_show` 核實；
+4. catalog 暫時不可用時會降級返回已有 curated candidate，而不令 MCP crash。
 
 搜尋結果仍會經過 strict matching，metadata 搜到「相關」不代表一定符合使用者要求。
 
 ### 澳門 Adapter
 
-澳門 v0.1 採用較保守策略：
+澳門採用較保守的 registry 策略：
 
-1. 使用本機 registry 保存已驗證的 `data.gov.mo` dataset；
-2. 只接受官方 `data.gov.mo` / `api.data.gov.mo` URL 作進一步 inspection；
-3. 如果未找到 exact dataset，返回未找到或 discovery limited；
-4. 在未確認穩定官方 machine-search endpoint 前，不自行假設或 reverse-engineer 一個搜尋 API。
+1. `registry/mo.json` 同時保存 `verified`、`manual_required`、`deprecated` 狀態；
+2. 只有 `verified` dataset 可以升格為 exact / FOUND；
+3. `manual_required` 只可作 discovery 診斷候選，必須重新核實更新頻率、格式及 API／下載方法後才可使用；
+4. `deprecated` 不會返回；
+5. token / APPCODE 值永不保存到 repository；
+6. 在未確認穩定官方 machine-search endpoint 前，不自行假設或 reverse-engineer 一個搜尋 API。
 
 ### Strict Matching 範例
 
@@ -199,6 +203,22 @@ Call official API
     ↓
 Return data
 ```
+
+### 驗證
+
+普通單元測試：
+
+```bash
+npm run check
+```
+
+真正呼叫香港／澳門官方 live endpoint 的 E2E smoke test：
+
+```bash
+npm run e2e
+```
+
+GitHub 的 `Live E2E` workflow 預設只可手動執行；commit message 含 `[e2e]` 時亦會執行，避免一般 commit 因政府網站短暫波動而失敗。
 
 ### Security
 
@@ -300,21 +320,25 @@ The model must not invent authentication values, headers, cookies, tokens, or re
 
 ### Hong Kong adapter
 
-Hong Kong discovery currently uses the official **DATA.GOV.HK CKAN metadata APIs**:
+Hong Kong uses a **verified curated registry plus official DATA.GOV.HK metadata fallback**:
 
-- `package_list`
-- `package_show`
+1. `registry/hk.json` stores high-confidence verified datasets;
+2. an exact verified registry hit returns immediately without a catalog scan;
+3. otherwise the official DATA.GOV.HK dataset-list index is used for candidate discovery and CKAN `package_show` verifies the final metadata;
+4. catalog failures degrade gracefully instead of crashing the MCP.
 
 Candidates still pass through strict matching before they can be considered exact.
 
 ### Macao adapter
 
-Macao v0.1 intentionally uses a conservative approach:
+Macao uses a conservative status-aware registry:
 
-1. a local registry for verified `data.gov.mo` datasets;
-2. inspection of official `data.gov.mo` / `api.data.gov.mo` URLs only;
-3. NOT_FOUND / discovery-limited results when no exact dataset is verified;
-4. no assumed or reverse-engineered machine-search API until a stable official endpoint is confirmed.
+1. `registry/mo.json` supports `verified`, `manual_required`, and `deprecated`;
+2. only `verified` entries may become exact / FOUND;
+3. `manual_required` entries are discovery-only until frequency, format, and API/download access are re-verified;
+4. `deprecated` entries are not returned;
+5. tokens and APPCODE values are never persisted;
+6. no assumed or reverse-engineered machine-search API until a stable official endpoint is confirmed.
 
 ### Strict matching example
 
@@ -359,6 +383,22 @@ Call official API
     ↓
 Return data
 ```
+
+### Validation
+
+Run deterministic checks:
+
+```bash
+npm run check
+```
+
+Run live smoke tests against official Hong Kong and Macao endpoints:
+
+```bash
+npm run e2e
+```
+
+The GitHub `Live E2E` workflow is manual by default, and also runs for commit messages containing `[e2e]`, so normal commits are not made flaky by temporary government-site outages.
 
 ### Security
 
