@@ -42,3 +42,16 @@ test("does not treat car-park location as equivalent to real-time vacancy", () =
   }]);
   assert.equal(x.match, "candidate");
 });
+
+test("Hong Kong matching strips region wording but still rejects semantic substitution", () => {
+  const [x] = strictMark("香港停車場空位", [{
+    region: "HK",
+    id: "x",
+    title: "停車場位置",
+    description: "政府停車場地址及座標",
+    detailUrl: "https://data.gov.hk/tc-data/dataset/x",
+    match: "candidate",
+    evidence: []
+  }]);
+  assert.equal(x.match, "candidate");
+});
