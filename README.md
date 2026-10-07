@@ -42,7 +42,7 @@ MCP 使用本機 `stdio` 執行，因此 **不需要 VPS、雲端後端或持續
   預設只接受 `*.gov.hk`、`*.gov.mo` 的 HTTPS 來源。
 
 - **不猜測 API Token / Header**  
-  API key、bearer token、cookie、CSRF token、Referer、request parameter 等，必須由官方文件或官方公開流程確認。
+  API key、bearer token、cookie、CSRF token、Referer、request parameter 等，必須由官方文件或官方公開流程確認。澳門 data.gov.mo 的公開 APPCODE 會由 MCP 在 runtime 透過官方 SPA metadata API 取得，僅在記憶體中短暫使用，不寫入 registry 或回傳原值。
 
 - **Secrets 只留在本機**  
   私人 credential 不應寫入 Skill、registry、log 或 Git repository。
@@ -105,7 +105,7 @@ Client 設定範例：
 
 #### `inspect_official_url`
 
-讀取並檢查官方香港／澳門政府 HTTPS URL。
+讀取並檢查官方香港／澳門政府 HTTPS URL。當 URL 是 `https://data.gov.mo/Detail?id=...` 時，不再只讀 SPA HTML shell，而會改用官方 `api.data.gov.mo/datadir/detail/{datasetId}` metadata，解析現行 API ID、apiPath，以及 APPCODE 是否成功取得；APPCODE 原值會被 redacted。
 
 內建：
 
@@ -117,7 +117,7 @@ Client 設定範例：
 
 #### `call_official_api`
 
-呼叫已經驗證的政府 API endpoint。
+呼叫已經驗證的政府 API endpoint。對已驗證的澳門 `*.apigateway.data.gov.mo` dataset，若沒有傳入 Authorization，MCP 會用 dataset UUID 從官方 runtime metadata 取得現行 APPCODE 並自動注入；可選傳入 `datasetId`，或由 verified registry 的 resource URL 安全反查。
 
 Agent 不得自行發明：
 

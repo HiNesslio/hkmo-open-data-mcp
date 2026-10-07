@@ -30,3 +30,20 @@ test("MO end-to-end: unverified official candidate is never promoted",{skip:!run
   const item=marked.find(x=>x.id==="81c17efc-3e92-484e-ab14-de7fa0f90f01");
   assert.ok(item); assert.equal(item.verificationStatus,"manual_required"); assert.equal(item.match,"candidate");
 });
+
+test("MO end-to-end: Detail SPA metadata -> runtime APPCODE -> live parking API",{skip:!run},async()=>{
+  const { inspectMacaoDatasetDetail, resolveMacaoApiAccess } = await import("../src/macao-auth.js");
+  const datasetId="ea50a770-cc35-47cc-a3ba-7f60092d4bc4";
+  const inspected=await inspectMacaoDatasetDetail(datasetId);
+  assert.equal(inspected.authentication.resolved,true);
+  assert.equal(inspected.authentication.value,"[redacted]");
+  assert.ok(inspected.apis.some((x)=>x.apiPath.includes("dsat.apigateway.data.gov.mo/car_park_maintance")));
+
+  const access=await resolveMacaoApiAccess(datasetId,"https://dsat.apigateway.data.gov.mo/car_park_maintance");
+  assert.ok(access.appCode.length>=16);
+  assert.ok(access.selected);
+
+  const res=await safeFetch(access.selected!.apiPath,{headers:{authorization:`APPCODE ${access.appCode}`}},1_000_000);
+  assert.equal(res.status,200);
+  assert.ok(res.text.includes("Car_park_info") || res.text.includes("CarPark"));
+});
