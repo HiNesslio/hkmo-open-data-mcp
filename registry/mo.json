@@ -1,16 +1,64 @@
 {
   "source": "https://data.gov.mo/",
-  "policy": "Registry entries are discovery hints only. The model must verify the official detail page/API before claiming a dataset is exact.",
+  "policy": "Registry entries are discovery hints only. The model must verify the official detail page/API before claiming a dataset is exact or before calling an API.",
   "datasets": [
     {
       "id": "e7b2e84d-3333-42f0-b676-64ce95306f0d",
       "title": "巴士路線資料",
       "aliases": ["BUS_POLE", "ROUTE_NETWORK", "BUS_ROUTE_SEQ", "bus route"],
+      "exactAliases": ["巴士路線資料", "bus route data"],
       "description": "澳門交通事務局巴士站、路線網絡及路線與站點關聯資料。",
       "provider": "交通事務局",
       "formats": ["SHAPEFILE", "XLS"],
       "detailUrl": "https://data.gov.mo/Detail?id=e7b2e84d-3333-42f0-b676-64ce95306f0d",
-      "resourceUrls": []
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "static",
+      "accessMethod": "download",
+      "openness": "unconditional"
+    },
+    {
+      "id": "ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
+      "title": "停車場車位資訊",
+      "aliases": [
+        "停車場",
+        "車位資訊",
+        "停車場空位",
+        "剩餘車位",
+        "即時車位",
+        "實時車位",
+        "公共停車場實時資訊",
+        "parking vacancy",
+        "car park vacancy"
+      ],
+      "exactAliases": [
+        "停車場車位資訊",
+        "停車場實時空位",
+        "停車場即時空位",
+        "停車場空位資料",
+        "停車場剩餘車位",
+        "公共停車場實時空位",
+        "公共停車場即時空位",
+        "公共停車場剩餘車位",
+        "real-time car park vacancy",
+        "realtime car park vacancy",
+        "real-time parking vacancy",
+        "realtime parking vacancy"
+      ],
+      "description": "交通事務局提供的公共停車場動態車位資訊，包括停車場車位內容、停車場序號、停車場名稱、汽車位車位數量、摩托車車位數量、最後更新時間及暫停發佈訊息。官方交通數據開放目錄列明更新頻率為10秒。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
+      "resourceUrls": [],
+      "updateFrequency": "10 seconds",
+      "dataType": "dynamic",
+      "accessMethod": "API",
+      "openness": "unconditional",
+      "apiVerification": "API access is officially confirmed. The current endpoint, Authorization token/header and request details must be re-read from the official data.gov.mo detail/API flow before use; do not reuse stale credentials.",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
+        "https://www.dsat.gov.mo/pdf/%E4%BA%A4%E9%80%9A%E4%BA%8B%E5%8B%99%E5%B1%80%E4%BA%A4%E9%80%9A%E6%95%B8%E6%93%9A%E9%96%8B%E6%94%BE%E7%AE%A1%E7%90%86%EF%BC%88%E8%A9%A6%E8%A1%8C%EF%BC%89%E8%BE%A6%E6%B3%95.pdf"
+      ]
     }
   ]
 }

@@ -2,15 +2,25 @@ import type { DatasetCandidate } from "../types.js";
 import registry from "../../registry/mo.json" with { type: "json" };
 
 function normalize(s: string): string {
-  return s.toLowerCase().replace(/[\s\p{P}\p{S}]+/gu, "");
+  return s.toLowerCase().normalize("NFKC").replace(/[\s\p{P}\p{S}]+/gu, "");
+}
+
+function normalizeQuery(s: string): string {
+  return normalize(s).replace(/澳門|澳门|macao|macau/gu, "");
 }
 
 export async function searchMacao(query: string, keywords: string[] = [], limit = 10): Promise<DatasetCandidate[]> {
-  const needles = [query, ...keywords].map(normalize).filter(Boolean);
+  const needles = [query, ...keywords].map(normalizeQuery).filter(Boolean);
   const rows = registry.datasets as Array<any>;
+
   return rows
     .filter((d) => {
-      const text = normalize([d.title, d.description, ...(d.aliases ?? [])].join(" "));
+      const text = normalize([
+        d.title,
+        d.description,
+        ...(d.aliases ?? []),
+        ...(d.exactAliases ?? [])
+      ].join(" "));
       return needles.some((n) => text.includes(n) || n.includes(normalize(d.title)));
     })
     .slice(0, limit)
@@ -23,7 +33,13 @@ export async function searchMacao(query: string, keywords: string[] = [], limit 
       formats: d.formats,
       detailUrl: d.detailUrl,
       resourceUrls: d.resourceUrls ?? [],
+      exactAliases: d.exactAliases ?? [],
+      updateFrequency: d.updateFrequency,
+      dataType: d.dataType,
+      accessMethod: d.accessMethod,
+      openness: d.openness,
+      apiVerification: d.apiVerification,
       match: "candidate" as const,
-      evidence: ["matched local registry entry sourced from data.gov.mo"]
+      evidence: ["matched local registry entry sourced from official Macao government data"]
     }));
 }

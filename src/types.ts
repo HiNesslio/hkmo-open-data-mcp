@@ -9,6 +9,12 @@ export type DatasetCandidate = {
   formats?: string[];
   detailUrl: string;
   resourceUrls?: string[];
+  exactAliases?: string[];
+  updateFrequency?: string;
+  dataType?: string;
+  accessMethod?: string;
+  openness?: string;
+  apiVerification?: string;
   match: "exact" | "candidate";
   evidence: string[];
 };
