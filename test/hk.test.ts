@@ -18,3 +18,9 @@ test("official dataset-list index extraction finds dataset ids embedded in Chine
   assert.deepEqual(records.map((x)=>x.id),["hk-edb-schinfo-school-location-and-information"]);
   assert.match(records[0].text,/學校位置及資料/);
 });
+
+test("verified curated exact match does not require live CKAN discovery", async()=>{
+  const { searchHongKong } = await import("../src/catalog/hk.js");
+  const rows = await searchHongKong("香港實時天氣");
+  assert.ok(rows.some((x)=>x.id==="hk-hko-rss-current-weather-report"));
+});

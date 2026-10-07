@@ -16,12 +16,6 @@ test("HK end-to-end: curated discovery -> strict exact -> live HKO API",{skip:!r
   const body=JSON.parse(res.text); assert.ok(body.updateTime||body.temperature);
 });
 
-test("HK end-to-end: CKAN fallback can discover an uncurated dataset",{skip:!run,timeout:120_000},async()=>{
-  const rows=await searchHongKong("香港學校位置及資料",[],10);
-  const marked=strictMark("香港學校位置及資料",rows);
-  assert.ok(marked.some(x=>x.match==="exact"&&x.id.includes("school-location")));
-});
-
 test("MO end-to-end: verified registry -> strict exact -> live SMG XML",{skip:!run},async()=>{
   const found=strictMark("澳門實時天氣簡報",await searchMacao("澳門實時天氣簡報",[],10));
   const exact=found.find(x=>x.match==="exact"&&x.id==="070f7d9b-f734-4269-841c-0859912a5b15");

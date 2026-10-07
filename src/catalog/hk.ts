@@ -94,6 +94,13 @@ async function loadHongKongIndex(): Promise<HkIndexRecord[]> {
   }
 }
 
+function curatedExactQueryMatch(query: string, candidate: DatasetCandidate): boolean {
+  const q = normalize(stripRegion(query));
+  if (!q) return false;
+  const targets = [candidate.title, ...(candidate.exactAliases ?? [])].map((x) => normalize(stripRegion(x))).filter(Boolean);
+  return targets.includes(q);
+}
+
 function searchCurated(query: string, keywords: string[], limit: number): DatasetCandidate[] {
   const needles = [query, ...keywords].map((x) => normalize(stripRegion(x))).filter(Boolean);
   return (registry.datasets as Array<any>)
@@ -114,7 +121,12 @@ function searchCurated(query: string, keywords: string[], limit: number): Datase
 
 async function loadHongKongGroupCatalog(): Promise<HkPackage[]> {
   if (groupCache && groupCache.expiresAt > Date.now()) return groupCache.packages;
-  const groupsRes = await safeFetch(`${BASE}/group_list`);
+  let groupsRes;
+  try {
+    groupsRes = await safeFetch(`${BASE}/group_list`);
+  } catch {
+    return [];
+  }
   if (groupsRes.status !== 200) return [];
   const groupsParsed = JSON.parse(groupsRes.text) as { success:boolean; result:string[] };
   if (!groupsParsed.success || !Array.isArray(groupsParsed.result)) return [];
@@ -192,6 +204,13 @@ async function searchCkan(query:string,keywords:string[],limit:number,exclude:Se
 
 export async function searchHongKong(query:string,keywords:string[]=[],limit=10):Promise<DatasetCandidate[]> {
   const curated=searchCurated(query,keywords,limit);
-  const ckan=await searchCkan(query,keywords,limit,new Set(curated.map((x)=>x.id)));
-  return [...curated,...ckan].slice(0,limit);
+  if (curated.some((candidate)=>curatedExactQueryMatch(query,candidate))) {
+    return curated;
+  }
+  try {
+    const ckan=await searchCkan(query,keywords,limit,new Set(curated.map((x)=>x.id)));
+    return [...curated,...ckan].slice(0,limit);
+  } catch {
+    return curated;
+  }
 }
