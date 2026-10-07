@@ -4,6 +4,7 @@ export type DatasetCandidate = {
   region: Region;
   id: string;
   title: string;
+  category?: string;
   description?: string;
   provider?: string;
   formats?: string[];
@@ -13,8 +14,11 @@ export type DatasetCandidate = {
   updateFrequency?: string;
   dataType?: string;
   accessMethod?: string;
+  requestMethod?: string;
   openness?: string;
+  accessNotes?: string;
   apiVerification?: string;
+  evidenceUrls?: string[];
   match: "exact" | "candidate";
   evidence: string[];
 };

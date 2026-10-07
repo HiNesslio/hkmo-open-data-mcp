@@ -17,10 +17,12 @@ export async function searchMacao(query: string, keywords: string[] = [], limit 
     .filter((d) => {
       const text = normalize([
         d.title,
+        d.category,
+        d.provider,
         d.description,
         ...(d.aliases ?? []),
         ...(d.exactAliases ?? [])
-      ].join(" "));
+      ].filter(Boolean).join(" "));
       return needles.some((n) => text.includes(n) || n.includes(normalize(d.title)));
     })
     .slice(0, limit)
@@ -28,6 +30,7 @@ export async function searchMacao(query: string, keywords: string[] = [], limit 
       region: "MO" as const,
       id: d.id,
       title: d.title,
+      category: d.category,
       description: d.description,
       provider: d.provider,
       formats: d.formats,
@@ -37,9 +40,12 @@ export async function searchMacao(query: string, keywords: string[] = [], limit 
       updateFrequency: d.updateFrequency,
       dataType: d.dataType,
       accessMethod: d.accessMethod,
+      requestMethod: d.requestMethod,
       openness: d.openness,
+      accessNotes: d.accessNotes,
       apiVerification: d.apiVerification,
+      evidenceUrls: d.evidenceUrls ?? [d.detailUrl],
       match: "candidate" as const,
-      evidence: ["matched local registry entry sourced from official Macao government data"]
+      evidence: ["matched curated registry entry backed by official Macao government dataset metadata"]
     }));
 }

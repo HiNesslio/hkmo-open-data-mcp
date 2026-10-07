@@ -1,25 +1,76 @@
 {
   "source": "https://data.gov.mo/",
-  "policy": "Registry entries are discovery hints only. The model must verify the official detail page/API before claiming a dataset is exact or before calling an API.",
+  "reviewedAt": "2026-10-07",
+  "policy": "Registry entries are discovery hints only. Exact-match policy still applies. Every entry below has an official data.gov.mo dataset ID plus a verified update frequency, format/type and access method from official catalog metadata; tokens are intentionally not persisted. The model must re-check the official Detail/API before execution.",
   "datasets": [
     {
       "id": "e7b2e84d-3333-42f0-b676-64ce95306f0d",
       "title": "巴士路線資料",
-      "aliases": ["BUS_POLE", "ROUTE_NETWORK", "BUS_ROUTE_SEQ", "bus route"],
-      "exactAliases": ["巴士路線資料", "bus route data"],
-      "description": "澳門交通事務局巴士站、路線網絡及路線與站點關聯資料。",
+      "category": "公共交通",
+      "aliases": [
+        "BUS_POLE",
+        "ROUTE_NETWORK",
+        "BUS_ROUTE_SEQ",
+        "bus route"
+      ],
+      "exactAliases": [
+        "巴士路線資料",
+        "bus route data"
+      ],
+      "description": "巴士站、路線網絡及巴士路線與站點關聯資料（BUS_POLE、ROUTE_NETWORK、BUS_ROUTE_SEQ）。",
       "provider": "交通事務局",
-      "formats": ["SHAPEFILE", "XLS"],
+      "formats": [
+        "SHAPEFILE",
+        "XLS"
+      ],
       "detailUrl": "https://data.gov.mo/Detail?id=e7b2e84d-3333-42f0-b676-64ce95306f0d",
       "resourceUrls": [],
       "updateFrequency": "按需要",
-      "dataType": "static",
+      "dataType": "reference",
       "accessMethod": "download",
-      "openness": "unconditional"
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=e7b2e84d-3333-42f0-b676-64ce95306f0d"
+      ]
+    },
+    {
+      "id": "ac55c2f1-780a-4dc8-875f-851b2203b706",
+      "title": "停車場資料",
+      "category": "公共交通",
+      "aliases": [
+        "公共停車場資料",
+        "car park details",
+        "parking details"
+      ],
+      "exactAliases": [
+        "停車場資料",
+        "公共停車場資料"
+      ],
+      "description": "公共停車場基本資料，包括名稱、位置、出入口、聯絡、車場高度、座標及收費等。",
+      "provider": "交通事務局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=ac55c2f1-780a-4dc8-875f-851b2203b706",
+      "resourceUrls": [
+        "https://dsat.apigateway.data.gov.mo/car_park_detail?lang=zh_TW"
+      ],
+      "updateFrequency": "10秒",
+      "dataType": "dynamic-reference",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "openness": "unconditional",
+      "accessNotes": "API 使用官方 Detail 頁當下顯示的 Authorization APPCODE；registry 不保存 APPCODE 值。",
+      "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=ac55c2f1-780a-4dc8-875f-851b2203b706"
+      ]
     },
     {
       "id": "ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
       "title": "停車場車位資訊",
+      "category": "公共交通",
       "aliases": [
         "停車場",
         "車位資訊",
@@ -27,7 +78,6 @@
         "剩餘車位",
         "即時車位",
         "實時車位",
-        "公共停車場實時資訊",
         "parking vacancy",
         "car park vacancy"
       ],
@@ -45,19 +95,694 @@
         "real-time parking vacancy",
         "realtime parking vacancy"
       ],
-      "description": "交通事務局提供的公共停車場動態車位資訊，包括停車場車位內容、停車場序號、停車場名稱、汽車位車位數量、摩托車車位數量、最後更新時間及暫停發佈訊息。官方交通數據開放目錄列明更新頻率為10秒。",
+      "description": "公共停車場動態車位資訊，包括停車場序號、名稱、汽車位、摩托車位、最後更新時間及暫停發佈訊息。",
       "provider": "交通事務局",
-      "formats": [],
+      "formats": [
+        "XML"
+      ],
       "detailUrl": "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
-      "resourceUrls": [],
-      "updateFrequency": "10 seconds",
+      "resourceUrls": [
+        "https://dsat.apigateway.data.gov.mo/car_park_maintance?lang=zh_TW"
+      ],
+      "updateFrequency": "10秒",
       "dataType": "dynamic",
       "accessMethod": "API",
+      "requestMethod": "GET",
       "openness": "unconditional",
-      "apiVerification": "API access is officially confirmed. The current endpoint, Authorization token/header and request details must be re-read from the official data.gov.mo detail/API flow before use; do not reuse stale credentials.",
+      "accessNotes": "API 使用官方 Detail 頁當下顯示的 Authorization APPCODE；registry 不保存 APPCODE 值。",
+      "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
       "evidenceUrls": [
-        "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
-        "https://www.dsat.gov.mo/pdf/%E4%BA%A4%E9%80%9A%E4%BA%8B%E5%8B%99%E5%B1%80%E4%BA%A4%E9%80%9A%E6%95%B8%E6%93%9A%E9%96%8B%E6%94%BE%E7%AE%A1%E7%90%86%EF%BC%88%E8%A9%A6%E8%A1%8C%EF%BC%89%E8%BE%A6%E6%B3%95.pdf"
+        "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4"
+      ]
+    },
+    {
+      "id": "e362d709-ae92-4176-ae8c-7dbc92776f38",
+      "title": "公共道路咪錶車位",
+      "category": "公共交通",
+      "aliases": [
+        "咪錶車位",
+        "路邊咪錶",
+        "metered parking"
+      ],
+      "exactAliases": [
+        "公共道路咪錶車位"
+      ],
+      "description": "公共道路咪錶車位統計，按年份、月份、項目及子項目提供總數。",
+      "provider": "交通事務局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=e362d709-ae92-4176-ae8c-7dbc92776f38",
+      "resourceUrls": [],
+      "updateFrequency": "每季",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=e362d709-ae92-4176-ae8c-7dbc92776f38"
+      ]
+    },
+    {
+      "id": "4f1c19c0-2f66-4b1f-8bc4-ed85dbdab3db",
+      "title": "公共道路免費車位",
+      "category": "公共交通",
+      "aliases": [
+        "免費車位",
+        "路邊免費車位",
+        "free road parking"
+      ],
+      "exactAliases": [
+        "公共道路免費車位"
+      ],
+      "description": "公共道路免費車位統計，按項目、年份及月份提供總數。",
+      "provider": "交通事務局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=4f1c19c0-2f66-4b1f-8bc4-ed85dbdab3db",
+      "resourceUrls": [],
+      "updateFrequency": "每季",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=4f1c19c0-2f66-4b1f-8bc4-ed85dbdab3db"
+      ]
+    },
+    {
+      "id": "fcfef8dd-0262-4d08-8b7d-a53b08a6ae5d",
+      "title": "交通燈組",
+      "category": "公共交通",
+      "aliases": [
+        "交通燈",
+        "交通信號燈",
+        "traffic lights"
+      ],
+      "exactAliases": [
+        "交通燈組"
+      ],
+      "description": "交通燈組統計，按年份、月份、地區及中央控制/非中央控制分類。",
+      "provider": "交通事務局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=fcfef8dd-0262-4d08-8b7d-a53b08a6ae5d",
+      "resourceUrls": [],
+      "updateFrequency": "每季",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=fcfef8dd-0262-4d08-8b7d-a53b08a6ae5d"
+      ]
+    },
+    {
+      "id": "6dfb981a-aa65-4b67-90bf-2b165f1c0c85",
+      "title": "道路監控及偵測系統",
+      "category": "公共交通",
+      "aliases": [
+        "道路監控",
+        "道路偵測",
+        "traffic monitoring",
+        "traffic detection"
+      ],
+      "exactAliases": [
+        "道路監控及偵測系統"
+      ],
+      "description": "道路監控及偵測系統統計，按年份、月份、類型、子類型及項目提供總數。",
+      "provider": "交通事務局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=6dfb981a-aa65-4b67-90bf-2b165f1c0c85",
+      "resourceUrls": [],
+      "updateFrequency": "每季",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=6dfb981a-aa65-4b67-90bf-2b165f1c0c85"
+      ]
+    },
+    {
+      "id": "92824cd3-ef32-4cc4-862b-d45b320b5b9d",
+      "title": "澳門國際機場乘客量",
+      "category": "公共交通",
+      "aliases": [
+        "機場乘客量",
+        "MFM passenger volume",
+        "airport passengers"
+      ],
+      "exactAliases": [
+        "澳門國際機場乘客量"
+      ],
+      "description": "按年提供澳門國際機場客運數量，資料包含年份、月份及乘客數量。",
+      "provider": "民航局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=92824cd3-ef32-4cc4-862b-d45b320b5b9d",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=92824cd3-ef32-4cc4-862b-d45b320b5b9d"
+      ]
+    },
+    {
+      "id": "070f7d9b-f734-4269-841c-0859912a5b15",
+      "title": "實時天氣簡報",
+      "category": "城市環境",
+      "aliases": [
+        "實時天氣",
+        "即時天氣",
+        "current weather",
+        "weather brief"
+      ],
+      "exactAliases": [
+        "實時天氣簡報",
+        "即時天氣簡報"
+      ],
+      "description": "每小時整點的實況天氣，包括氣溫、濕度、風向及風速等資訊。",
+      "provider": "地球物理氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=070f7d9b-f734-4269-841c-0859912a5b15",
+      "resourceUrls": [
+        "https://xml.smg.gov.mo/c_actual_brief.xml",
+        "https://xml.smg.gov.mo/e_actual_brief.xml",
+        "https://xml.smg.gov.mo/p_actual_brief.xml"
+      ],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "URL",
+      "requestMethod": "GET",
+      "openness": "unconditional",
+      "accessNotes": "官方 Detail 頁直接列出 SMG XML 網址。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=070f7d9b-f734-4269-841c-0859912a5b15"
+      ]
+    },
+    {
+      "id": "15044781-1752-4f98-b87e-508208d70408",
+      "title": "熱帶氣旋警告",
+      "category": "城市環境",
+      "aliases": [
+        "颱風警告",
+        "風球",
+        "熱帶氣旋",
+        "tropical cyclone warning"
+      ],
+      "exactAliases": [
+        "熱帶氣旋警告"
+      ],
+      "description": "提供熱帶氣旋警告信號、熱帶氣旋概況及未來動態等資訊。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=15044781-1752-4f98-b87e-508208d70408",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=15044781-1752-4f98-b87e-508208d70408"
+      ]
+    },
+    {
+      "id": "63b99551-539d-4381-967e-bfb82f4e7c05",
+      "title": "即時特別天氣訊息",
+      "category": "城市環境",
+      "aliases": [
+        "特別天氣訊息",
+        "惡劣天氣訊息",
+        "special weather message"
+      ],
+      "exactAliases": [
+        "即時特別天氣訊息"
+      ],
+      "description": "提供天氣轉變資訊或惡劣天氣發生前的預警訊息等。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=63b99551-539d-4381-967e-bfb82f4e7c05",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=63b99551-539d-4381-967e-bfb82f4e7c05"
+      ]
+    },
+    {
+      "id": "4ad04fae-852d-4d31-b31c-77dfc080f8f5",
+      "title": "七日天氣預報",
+      "category": "城市環境",
+      "aliases": [
+        "7日天氣預報",
+        "七天天氣",
+        "7-day forecast"
+      ],
+      "exactAliases": [
+        "七日天氣預報",
+        "7日天氣預報"
+      ],
+      "description": "未來7日天氣預測，包括天氣狀況、氣溫、濕度、風向及風速等資訊。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=4ad04fae-852d-4d31-b31c-77dfc080f8f5",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "forecast",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=4ad04fae-852d-4d31-b31c-77dfc080f8f5"
+      ]
+    },
+    {
+      "id": "4e8d2017-aa1b-4bab-a03a-fb570dadbf6e",
+      "title": "風暴潮",
+      "category": "城市環境",
+      "aliases": [
+        "風暴潮警告",
+        "水浸",
+        "storm surge"
+      ],
+      "exactAliases": [
+        "風暴潮"
+      ],
+      "description": "提供風暴潮警告信號及水浸情況等資訊。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=4e8d2017-aa1b-4bab-a03a-fb570dadbf6e",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=4e8d2017-aa1b-4bab-a03a-fb570dadbf6e"
+      ]
+    },
+    {
+      "id": "986cfdf5-0d14-4db7-8b87-5350b65268bd",
+      "title": "實時空氣質量時指數",
+      "category": "城市環境",
+      "aliases": [
+        "空氣質量",
+        "AQI",
+        "即時空氣質量",
+        "real-time AQI"
+      ],
+      "exactAliases": [
+        "實時空氣質量時指數",
+        "即時空氣質量時指數"
+      ],
+      "description": "每小時整點的空氣質量時指數。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=986cfdf5-0d14-4db7-8b87-5350b65268bd",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=986cfdf5-0d14-4db7-8b87-5350b65268bd"
+      ]
+    },
+    {
+      "id": "4591e04c-e63e-467e-af72-d40c20210a42",
+      "title": "空氣質量指數預報",
+      "category": "城市環境",
+      "aliases": [
+        "AQI預報",
+        "空氣質量預報",
+        "air quality forecast"
+      ],
+      "exactAliases": [
+        "空氣質量指數預報"
+      ],
+      "description": "空氣質量日指數的預測指數。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=4591e04c-e63e-467e-af72-d40c20210a42",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "forecast",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=4591e04c-e63e-467e-af72-d40c20210a42"
+      ]
+    },
+    {
+      "id": "2c13addd-a91b-436a-a3e2-84ec895b68b6",
+      "title": "即時紫外線值",
+      "category": "城市環境",
+      "aliases": [
+        "紫外線",
+        "UV",
+        "即時UV",
+        "UV index"
+      ],
+      "exactAliases": [
+        "即時紫外線值",
+        "實時紫外線值"
+      ],
+      "description": "提供即時紫外線指數。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=2c13addd-a91b-436a-a3e2-84ec895b68b6",
+      "resourceUrls": [],
+      "updateFrequency": "按需要",
+      "dataType": "dynamic",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=2c13addd-a91b-436a-a3e2-84ec895b68b6"
+      ]
+    },
+    {
+      "id": "7baa885b-7dca-4efa-ab65-16c6dee4ddd2",
+      "title": "紫外線預報",
+      "category": "城市環境",
+      "aliases": [
+        "UV預報",
+        "UV forecast"
+      ],
+      "exactAliases": [
+        "紫外線預報"
+      ],
+      "description": "當天的紫外線指數預測。",
+      "provider": "地球物理暨氣象局",
+      "formats": [
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=7baa885b-7dca-4efa-ab65-16c6dee4ddd2",
+      "resourceUrls": [],
+      "updateFrequency": "每日",
+      "dataType": "forecast",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=7baa885b-7dca-4efa-ab65-16c6dee4ddd2"
+      ]
+    },
+    {
+      "id": "7578ac99-41a4-4c8c-8da2-fad18eb40c13",
+      "title": "年終總人口",
+      "category": "住房人口",
+      "aliases": [
+        "總人口",
+        "人口總數",
+        "year-end total population"
+      ],
+      "exactAliases": [
+        "年終總人口"
+      ],
+      "description": "總人口包括本地人口、居澳外地僱員及外地學生。",
+      "provider": "統計暨普查局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=7578ac99-41a4-4c8c-8da2-fad18eb40c13",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=7578ac99-41a4-4c8c-8da2-fad18eb40c13"
+      ]
+    },
+    {
+      "id": "2828f4ac-bce6-42ab-acac-243a95b5cbad",
+      "title": "年終本地人口",
+      "category": "住房人口",
+      "aliases": [
+        "本地人口",
+        "居民人口",
+        "year-end local population"
+      ],
+      "exactAliases": [
+        "年終本地人口"
+      ],
+      "description": "主要為澳門居民，不包括居澳外地僱員及外地學生。",
+      "provider": "統計暨普查局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=2828f4ac-bce6-42ab-acac-243a95b5cbad",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=2828f4ac-bce6-42ab-acac-243a95b5cbad"
+      ]
+    },
+    {
+      "id": "0c3034c7-c756-4ef1-bc12-ce91bf934ef6",
+      "title": "澳門特區居民身份證持有人統計",
+      "category": "住房人口",
+      "aliases": [
+        "居民身份證持有人",
+        "澳門居民身份證統計",
+        "resident ID holders"
+      ],
+      "exactAliases": [
+        "澳門特區居民身份證持有人統計"
+      ],
+      "description": "澳門特區居民身份證持證人累計數目。",
+      "provider": "身份證明局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=0c3034c7-c756-4ef1-bc12-ce91bf934ef6",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=0c3034c7-c756-4ef1-bc12-ce91bf934ef6"
+      ]
+    },
+    {
+      "id": "6a965f6f-40fc-4aca-b83e-28a8cfed21ae",
+      "title": "體育設施",
+      "category": "體育",
+      "aliases": [
+        "公共體育設施",
+        "運動場地",
+        "sports facilities"
+      ],
+      "exactAliases": [
+        "體育設施"
+      ],
+      "description": "體育設施資料，包括設施名稱、位置、地址及運動類型。",
+      "provider": "體育局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=6a965f6f-40fc-4aca-b83e-28a8cfed21ae",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "reference",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=6a965f6f-40fc-4aca-b83e-28a8cfed21ae"
+      ]
+    },
+    {
+      "id": "b3cd7955-9d1d-421e-985c-3e72fd5a04c3",
+      "title": "學校資料統計表",
+      "category": "教育",
+      "aliases": [
+        "學校統計",
+        "學校資料",
+        "school statistics"
+      ],
+      "exactAliases": [
+        "學校資料統計表"
+      ],
+      "description": "學校資料統計表，包含學校數、校部數、教育類型及教學語言等統計。",
+      "provider": "教育暨青年局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=b3cd7955-9d1d-421e-985c-3e72fd5a04c3",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=b3cd7955-9d1d-421e-985c-3e72fd5a04c3"
+      ]
+    },
+    {
+      "id": "beed4ba9-6a7e-46dc-9fc3-ea4cc8f1533d",
+      "title": "衛生範疇醫院病床數目統計",
+      "category": "醫療衛生",
+      "aliases": [
+        "醫院病床",
+        "病床數目",
+        "hospital beds"
+      ],
+      "exactAliases": [
+        "衛生範疇醫院病床數目統計"
+      ],
+      "description": "衛生範疇醫院病床數目統計，按年度及單位提供病床數目。",
+      "provider": "衛生局",
+      "formats": [
+        "XLSX"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=beed4ba9-6a7e-46dc-9fc3-ea4cc8f1533d",
+      "resourceUrls": [],
+      "updateFrequency": "每年",
+      "dataType": "statistical",
+      "accessMethod": "download",
+      "openness": "unconditional",
+      "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=beed4ba9-6a7e-46dc-9fc3-ea4cc8f1533d"
+      ]
+    },
+    {
+      "id": "7e1eca8e-6ffe-4f74-8c81-25c25beb45b2",
+      "title": "文化遺產資料",
+      "category": "文化",
+      "aliases": [
+        "文化遺產",
+        "文物建築",
+        "非物質文化遺產",
+        "cultural heritage"
+      ],
+      "exactAliases": [
+        "文化遺產資料"
+      ],
+      "description": "非遺清單、非遺名錄、被評定的不動產（文物建築）及澳門歷史城區資料，包括名稱、簡介、GPS及圖片連結等。",
+      "provider": "文化局",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=7e1eca8e-6ffe-4f74-8c81-25c25beb45b2",
+      "resourceUrls": [
+        "https://ic.apigateway.data.gov.mo/culturalheritage_prod/ICH/CN/"
+      ],
+      "updateFrequency": "按需要",
+      "dataType": "reference",
+      "accessMethod": "API",
+      "requestMethod": "POST",
+      "openness": "unconditional",
+      "accessNotes": "API 使用官方 Detail 頁當下顯示的 Authorization APPCODE；endpoint 需保留尾斜線；registry 不保存 APPCODE 值。",
+      "apiVerification": "Official data.gov.mo metadata exposes API information. Obtain the current public APPCODE from the official Detail page before use.",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=7e1eca8e-6ffe-4f74-8c81-25c25beb45b2"
+      ]
+    },
+    {
+      "id": "8142c05e-818a-478a-9256-4ecd494d3f87",
+      "title": "澳門垃圾焚化中心",
+      "category": "城市環境",
+      "aliases": [
+        "垃圾焚化中心",
+        "焚化中心數據",
+        "incinerator statistics"
+      ],
+      "exactAliases": [
+        "澳門垃圾焚化中心"
+      ],
+      "description": "澳門垃圾焚化中心月度數據，包括金屬回收量、接收量及產電量。",
+      "provider": "環境保護局",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=8142c05e-818a-478a-9256-4ecd494d3f87",
+      "resourceUrls": [
+        "https://dspa.apigateway.data.gov.mo/T_Bas_MRIP_Approved"
+      ],
+      "updateFrequency": "每月",
+      "dataType": "statistical",
+      "accessMethod": "API",
+      "requestMethod": "POST",
+      "openness": "unconditional",
+      "accessNotes": "API 使用官方 Detail 頁當下顯示的 Authorization APPCODE；registry 不保存 APPCODE 值。",
+      "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=8142c05e-818a-478a-9256-4ecd494d3f87"
+      ]
+    },
+    {
+      "id": "0d6dd204-5bc0-49f3-9b7a-7d9e6eb58020",
+      "title": "澳門垃圾焚化中心尾氣數據",
+      "category": "城市環境",
+      "aliases": [
+        "焚化中心尾氣",
+        "尾氣監測",
+        "incinerator flue gas"
+      ],
+      "exactAliases": [
+        "澳門垃圾焚化中心尾氣數據"
+      ],
+      "description": "澳門垃圾焚化中心尾氣監測資料，包括汞、重金屬及二噁英/夫喃等指標。",
+      "provider": "環境保護局",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.mo/Detail?id=0d6dd204-5bc0-49f3-9b7a-7d9e6eb58020",
+      "resourceUrls": [
+        "https://dspa.apigateway.data.gov.mo/T_Bas_FlueGasMonitor_Approved"
+      ],
+      "updateFrequency": "按需要",
+      "dataType": "environmental-monitoring",
+      "accessMethod": "API",
+      "requestMethod": "POST",
+      "openness": "unconditional",
+      "accessNotes": "API 使用官方 Detail 頁當下顯示的 Authorization APPCODE；registry 不保存 APPCODE 值。",
+      "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=0d6dd204-5bc0-49f3-9b7a-7d9e6eb58020"
       ]
     }
   ]
