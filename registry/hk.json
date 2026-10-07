@@ -1,0 +1,402 @@
+{
+  "source": "https://data.gov.hk/",
+  "reviewedAt": "2026-10-07",
+  "policy": "Curated high-confidence layer. Verified entries are preferred for exact matching; DATA.GOV.HK CKAN metadata remains the discovery fallback for datasets not listed here. Resource URLs are stored only when directly verified from current official resource metadata.",
+  "datasets": [
+    {
+      "id": "hk-dpo-datagovhk1-carpark-info-vacancy",
+      "title": "空置車位資訊（整合版）",
+      "category": "運輸",
+      "aliases": [
+        "停車場空位",
+        "空置車位",
+        "即時車位",
+        "實時車位",
+        "parking vacancy",
+        "car park vacancy"
+      ],
+      "exactAliases": [
+        "空置車位資訊（整合版）",
+        "香港停車場實時空位",
+        "香港停車場即時空位",
+        "停車場實時空位",
+        "停車場即時空位",
+        "停車場空位資料",
+        "real-time parking vacancy",
+        "real-time car park vacancy"
+      ],
+      "description": "整合運輸署及起動九龍東等來源的空置車位數目及基本停車場資訊。",
+      "provider": "數字政策辦公室",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-dpo-datagovhk1-carpark-info-vacancy",
+      "resourceUrls": [],
+      "updateFrequency": "實時",
+      "dataType": "dynamic",
+      "accessMethod": "CKAN_API",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-dpo-datagovhk1-carpark-info-vacancy"
+      ]
+    },
+    {
+      "id": "hk-td-tis_5-real-time-parking-vacancy-data",
+      "title": "空置車位資訊",
+      "category": "運輸",
+      "aliases": [
+        "運輸署停車場空位",
+        "參與停車場空位",
+        "parking vacancy"
+      ],
+      "exactAliases": [
+        "空置車位資訊",
+        "運輸署空置車位資訊"
+      ],
+      "description": "運輸署參與計劃停車場的基本資料及空置車位資訊。",
+      "provider": "運輸署",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-td-tis_5-real-time-parking-vacancy-data",
+      "resourceUrls": [
+        "https://resource.data.one.gov.hk/td/carpark/vacancy_all.json",
+        "https://resource.data.one.gov.hk/td/carpark/basic_info_all.json"
+      ],
+      "updateFrequency": "由每小時至實時",
+      "dataType": "dynamic",
+      "accessMethod": "URL",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-td-tis_5-real-time-parking-vacancy-data"
+      ]
+    },
+    {
+      "id": "hk-td-tis_21-etakmb",
+      "title": "九龍巴士及龍運巴士路線實時到站數據",
+      "category": "運輸",
+      "aliases": [
+        "九巴ETA",
+        "龍運ETA",
+        "KMB ETA",
+        "LWB ETA",
+        "巴士實時到站"
+      ],
+      "exactAliases": [
+        "九龍巴士及龍運巴士路線實時到站數據",
+        "九巴實時到站",
+        "九巴ETA",
+        "龍運ETA"
+      ],
+      "description": "九巴及龍運路線、巴士站及實時預計到達時間資料；ETA 1分鐘內更新。",
+      "provider": "運輸署",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb",
+      "resourceUrls": [
+        "https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/{stop_id}",
+        "https://data.etabus.gov.hk/v1/transport/kmb/eta/{stop_id}/{route}/{service_type}"
+      ],
+      "updateFrequency": "ETA 1分鐘內；其他資料每日",
+      "dataType": "dynamic",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-td-tis_21-etakmb"
+      ]
+    },
+    {
+      "id": "ctb-eta-transport-realtime-eta",
+      "title": "城巴的實時抵站時間及相關資料",
+      "category": "運輸",
+      "aliases": [
+        "城巴ETA",
+        "Citybus ETA",
+        "城巴到站時間"
+      ],
+      "exactAliases": [
+        "城巴的實時抵站時間及相關資料",
+        "城巴實時抵站時間",
+        "城巴ETA"
+      ],
+      "description": "城巴路線、巴士站及實時預計抵達時間資料；ETA 每分鐘更新。",
+      "provider": "城巴有限公司",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/ctb-eta-transport-realtime-eta",
+      "resourceUrls": [],
+      "updateFrequency": "ETA每分鐘；其他資料有改動時",
+      "dataType": "dynamic",
+      "accessMethod": "CKAN_API",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/ctb-eta-transport-realtime-eta"
+      ]
+    },
+    {
+      "id": "mtr-data2-nexttrain-data",
+      "title": "港鐵實時列車服務資訊",
+      "category": "運輸",
+      "aliases": [
+        "港鐵到站時間",
+        "港鐵實時列車",
+        "MTR next train",
+        "MTR ETA"
+      ],
+      "exactAliases": [
+        "港鐵實時列車服務資訊",
+        "港鐵實時到站",
+        "MTR next train"
+      ],
+      "description": "提供多條港鐵重鐵線最多四班即將到站列車的抵達時間。",
+      "provider": "香港鐵路有限公司",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/mtr-data2-nexttrain-data",
+      "resourceUrls": [
+        "https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php"
+      ],
+      "updateFrequency": "每10秒",
+      "dataType": "dynamic",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/mtr-data2-nexttrain-data"
+      ]
+    },
+    {
+      "id": "mtr-lrnt_data-light-rail-nexttrain-data",
+      "title": "輕鐵實時列車服務資訊",
+      "category": "運輸",
+      "aliases": [
+        "輕鐵到站時間",
+        "輕鐵ETA",
+        "Light Rail next train"
+      ],
+      "exactAliases": [
+        "輕鐵實時列車服務資訊",
+        "輕鐵實時到站"
+      ],
+      "description": "提供輕鐵即將到站列車的抵達時間。",
+      "provider": "香港鐵路有限公司",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/mtr-lrnt_data-light-rail-nexttrain-data",
+      "resourceUrls": [],
+      "updateFrequency": "每10秒",
+      "dataType": "dynamic",
+      "accessMethod": "CKAN_API",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/mtr-lrnt_data-light-rail-nexttrain-data"
+      ]
+    },
+    {
+      "id": "hk-td-tis_23-routes-fares-geojson",
+      "title": "公共交通路線及收費資料 (GeoJSON)",
+      "category": "運輸",
+      "aliases": [
+        "公共交通路線",
+        "巴士路線",
+        "交通收費",
+        "routes and fares"
+      ],
+      "exactAliases": [
+        "公共交通路線及收費資料",
+        "公共交通路線及收費資料 (GeoJSON)"
+      ],
+      "description": "不同公共交通工具的路線及收費資料，包含巴士、小巴、渡輪、電車等。",
+      "provider": "運輸署",
+      "formats": [
+        "JSON",
+        "CSV",
+        "API"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-td-tis_23-routes-fares-geojson",
+      "resourceUrls": [
+        "https://static.data.gov.hk/td/routes-fares-geojson/JSON_BUS.json"
+      ],
+      "updateFrequency": "每兩星期",
+      "dataType": "reference",
+      "accessMethod": "URL",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-td-tis_23-routes-fares-geojson"
+      ]
+    },
+    {
+      "id": "hk-td-sm_4-traffic-data-strategic-major-roads",
+      "title": "主要幹道及道路交通數據",
+      "category": "運輸",
+      "aliases": [
+        "道路交通數據",
+        "交通速度",
+        "交通流量",
+        "road traffic speed",
+        "traffic volume"
+      ],
+      "exactAliases": [
+        "主要幹道及道路交通數據",
+        "道路交通數據"
+      ],
+      "description": "主要幹道交通探測器的流量、速度、道路使用情況及路段處理後速度。",
+      "provider": "運輸署",
+      "formats": [
+        "CSV",
+        "XML"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-td-sm_4-traffic-data-strategic-major-roads",
+      "resourceUrls": [],
+      "updateFrequency": "原始每1分鐘；處理後每2分鐘",
+      "dataType": "dynamic",
+      "accessMethod": "CKAN_RESOURCE",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-td-sm_4-traffic-data-strategic-major-roads"
+      ]
+    },
+    {
+      "id": "hk-hko-rss-current-weather-report",
+      "title": "本港地區天氣報告",
+      "category": "氣象",
+      "aliases": [
+        "香港實時天氣",
+        "香港即時天氣",
+        "current weather",
+        "實時天氣"
+      ],
+      "exactAliases": [
+        "本港地區天氣報告",
+        "香港實時天氣",
+        "香港即時天氣",
+        "實時天氣",
+        "即時天氣"
+      ],
+      "description": "香港天文台本港地區天氣報告。",
+      "provider": "香港天文台",
+      "formats": [
+        "JSON",
+        "RSS",
+        "API"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-hko-rss-current-weather-report",
+      "resourceUrls": [
+        "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc"
+      ],
+      "updateFrequency": "每小時及當有更新時",
+      "dataType": "dynamic",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-hko-rss-current-weather-report"
+      ]
+    },
+    {
+      "id": "hk-hko-rss-local-weather-forecast",
+      "title": "本港天氣預報",
+      "category": "氣象",
+      "aliases": [
+        "香港天氣預報",
+        "local weather forecast"
+      ],
+      "exactAliases": [
+        "本港天氣預報",
+        "香港天氣預報"
+      ],
+      "description": "香港天文台今天及／或明日的本港天氣預報。",
+      "provider": "香港天文台",
+      "formats": [
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-hko-rss-local-weather-forecast",
+      "resourceUrls": [
+        "https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc"
+      ],
+      "updateFrequency": "每小時及當有更新時",
+      "dataType": "forecast",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-hko-rss-local-weather-forecast"
+      ]
+    },
+    {
+      "id": "hk-censtatd-tablechart-150-11001",
+      "title": "香港人口數字 - 表 150-11001：按性別及年齡組別劃分的推算年中人口",
+      "category": "人口",
+      "aliases": [
+        "香港人口",
+        "年中人口",
+        "人口年齡",
+        "population by age"
+      ],
+      "exactAliases": [
+        "按性別及年齡組別劃分的推算年中人口",
+        "香港年中人口"
+      ],
+      "description": "按性別及年齡組別劃分的推算年中人口。",
+      "provider": "政府統計處",
+      "formats": [
+        "XLSX",
+        "CSV",
+        "JSON"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-censtatd-tablechart-150-11001",
+      "resourceUrls": [
+        "https://www.censtatd.gov.hk/api/get.php?id=150-11001&lang=tc&full_series=1"
+      ],
+      "updateFrequency": "當有需要時",
+      "dataType": "statistical",
+      "accessMethod": "API",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-censtatd-tablechart-150-11001"
+      ]
+    },
+    {
+      "id": "hk-fehd-fehdlocatn-fehd-facility-and-service-locations",
+      "title": "食物環境衞生署的設施及服務位置",
+      "category": "公共設施",
+      "aliases": [
+        "公廁",
+        "公共廁所",
+        "垃圾收集站",
+        "街市",
+        "熟食市場",
+        "FEHD facilities"
+      ],
+      "exactAliases": [
+        "食物環境衞生署的設施及服務位置"
+      ],
+      "description": "食環署設施及服務位置，包括公廁、公眾垃圾收集站、街市及熟食市場等。",
+      "provider": "食物環境衞生署",
+      "formats": [
+        "XML",
+        "API"
+      ],
+      "detailUrl": "https://data.gov.hk/tc-data/dataset/hk-fehd-fehdlocatn-fehd-facility-and-service-locations",
+      "resourceUrls": [
+        "https://www.fehd.gov.hk/tc_chi/map/fehd_map_c.xml"
+      ],
+      "updateFrequency": "當有需要時",
+      "dataType": "reference",
+      "accessMethod": "URL",
+      "requestMethod": "GET",
+      "verificationStatus": "verified",
+      "evidenceUrls": [
+        "https://data.gov.hk/tc-data/dataset/hk-fehd-fehdlocatn-fehd-facility-and-service-locations"
+      ]
+    }
+  ]
+}

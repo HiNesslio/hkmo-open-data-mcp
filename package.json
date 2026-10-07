@@ -15,7 +15,8 @@
     "start": "node dist/src/index.js",
     "dev": "tsx src/index.ts",
     "test": "node --test dist/test/*.test.js",
-    "check": "npm run build && npm test"
+    "check": "npm run build && npm test",
+    "e2e": "npm run build && RUN_E2E=1 node --test dist/test/e2e.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.3.1",

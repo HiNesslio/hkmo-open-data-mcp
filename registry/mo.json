@@ -1,7 +1,7 @@
 {
   "source": "https://data.gov.mo/",
   "reviewedAt": "2026-10-07",
-  "policy": "Registry entries are discovery hints only. Exact-match policy still applies. Every entry below has an official data.gov.mo dataset ID plus a verified update frequency, format/type and access method from official catalog metadata; tokens are intentionally not persisted. The model must re-check the official Detail/API before execution.",
+  "policy": "Verified entries may be used for exact matching after official endpoint inspection. manual_required entries are discovery-only and MUST NOT be promoted to exact/FOUND until update frequency, format/type, and API/download method are re-verified from official sources. deprecated entries MUST NOT be returned. Tokens/APPCODE values are never persisted.",
   "datasets": [
     {
       "id": "e7b2e84d-3333-42f0-b676-64ce95306f0d",
@@ -32,7 +32,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=e7b2e84d-3333-42f0-b676-64ce95306f0d"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "ac55c2f1-780a-4dc8-875f-851b2203b706",
@@ -65,7 +66,8 @@
       "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=ac55c2f1-780a-4dc8-875f-851b2203b706"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "ea50a770-cc35-47cc-a3ba-7f60092d4bc4",
@@ -113,7 +115,8 @@
       "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=ea50a770-cc35-47cc-a3ba-7f60092d4bc4"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "e362d709-ae92-4176-ae8c-7dbc92776f38",
@@ -141,7 +144,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=e362d709-ae92-4176-ae8c-7dbc92776f38"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "4f1c19c0-2f66-4b1f-8bc4-ed85dbdab3db",
@@ -169,7 +173,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=4f1c19c0-2f66-4b1f-8bc4-ed85dbdab3db"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "fcfef8dd-0262-4d08-8b7d-a53b08a6ae5d",
@@ -197,7 +202,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=fcfef8dd-0262-4d08-8b7d-a53b08a6ae5d"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "6dfb981a-aa65-4b67-90bf-2b165f1c0c85",
@@ -226,7 +232,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=6dfb981a-aa65-4b67-90bf-2b165f1c0c85"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "92824cd3-ef32-4cc4-862b-d45b320b5b9d",
@@ -254,7 +261,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=92824cd3-ef32-4cc4-862b-d45b320b5b9d"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "070f7d9b-f734-4269-841c-0859912a5b15",
@@ -289,7 +297,8 @@
       "accessNotes": "官方 Detail 頁直接列出 SMG XML 網址。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=070f7d9b-f734-4269-841c-0859912a5b15"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "15044781-1752-4f98-b87e-508208d70408",
@@ -318,7 +327,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=15044781-1752-4f98-b87e-508208d70408"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "63b99551-539d-4381-967e-bfb82f4e7c05",
@@ -346,7 +356,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=63b99551-539d-4381-967e-bfb82f4e7c05"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "4ad04fae-852d-4d31-b31c-77dfc080f8f5",
@@ -375,7 +386,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=4ad04fae-852d-4d31-b31c-77dfc080f8f5"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "4e8d2017-aa1b-4bab-a03a-fb570dadbf6e",
@@ -403,7 +415,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=4e8d2017-aa1b-4bab-a03a-fb570dadbf6e"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "986cfdf5-0d14-4db7-8b87-5350b65268bd",
@@ -433,7 +446,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=986cfdf5-0d14-4db7-8b87-5350b65268bd"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "4591e04c-e63e-467e-af72-d40c20210a42",
@@ -461,7 +475,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=4591e04c-e63e-467e-af72-d40c20210a42"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "2c13addd-a91b-436a-a3e2-84ec895b68b6",
@@ -491,7 +506,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=2c13addd-a91b-436a-a3e2-84ec895b68b6"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "7baa885b-7dca-4efa-ab65-16c6dee4ddd2",
@@ -518,7 +534,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=7baa885b-7dca-4efa-ab65-16c6dee4ddd2"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "7578ac99-41a4-4c8c-8da2-fad18eb40c13",
@@ -546,7 +563,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=7578ac99-41a4-4c8c-8da2-fad18eb40c13"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "2828f4ac-bce6-42ab-acac-243a95b5cbad",
@@ -574,7 +592,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=2828f4ac-bce6-42ab-acac-243a95b5cbad"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "0c3034c7-c756-4ef1-bc12-ce91bf934ef6",
@@ -602,7 +621,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=0c3034c7-c756-4ef1-bc12-ce91bf934ef6"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "6a965f6f-40fc-4aca-b83e-28a8cfed21ae",
@@ -630,7 +650,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=6a965f6f-40fc-4aca-b83e-28a8cfed21ae"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "b3cd7955-9d1d-421e-985c-3e72fd5a04c3",
@@ -658,7 +679,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=b3cd7955-9d1d-421e-985c-3e72fd5a04c3"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "beed4ba9-6a7e-46dc-9fc3-ea4cc8f1533d",
@@ -686,7 +708,8 @@
       "accessNotes": "由官方 data.gov.mo Detail 頁的目錄API/檔案下載取得；不保存目錄API中的可變 token。",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=beed4ba9-6a7e-46dc-9fc3-ea4cc8f1533d"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "7e1eca8e-6ffe-4f74-8c81-25c25beb45b2",
@@ -719,7 +742,8 @@
       "apiVerification": "Official data.gov.mo metadata exposes API information. Obtain the current public APPCODE from the official Detail page before use.",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=7e1eca8e-6ffe-4f74-8c81-25c25beb45b2"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "8142c05e-818a-478a-9256-4ecd494d3f87",
@@ -751,7 +775,8 @@
       "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=8142c05e-818a-478a-9256-4ecd494d3f87"
-      ]
+      ],
+      "verificationStatus": "verified"
     },
     {
       "id": "0d6dd204-5bc0-49f3-9b7a-7d9e6eb58020",
@@ -783,6 +808,298 @@
       "apiVerification": "Endpoint and APPCODE scheme are published by official data.gov.mo metadata; obtain the current APPCODE from the official Detail page before use.",
       "evidenceUrls": [
         "https://data.gov.mo/Detail?id=0d6dd204-5bc0-49f3-9b7a-7d9e6eb58020"
+      ],
+      "verificationStatus": "verified"
+    },
+    {
+      "id": "81c17efc-3e92-484e-ab14-de7fa0f90f01",
+      "title": "工程改道消息",
+      "category": "公共交通",
+      "aliases": [
+        "工程改道",
+        "道路工程",
+        "交通改道"
+      ],
+      "exactAliases": [
+        "工程改道消息"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=81c17efc-3e92-484e-ab14-de7fa0f90f01",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=81c17efc-3e92-484e-ab14-de7fa0f90f01"
+      ]
+    },
+    {
+      "id": "f9aeadd6-efb8-47ac-920a-946602453733",
+      "title": "澳門國際機場飛機起降架次",
+      "category": "公共交通",
+      "aliases": [
+        "機場起降架次",
+        "航班起降"
+      ],
+      "exactAliases": [
+        "澳門國際機場飛機起降架次"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "民航局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=f9aeadd6-efb8-47ac-920a-946602453733",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=f9aeadd6-efb8-47ac-920a-946602453733"
+      ]
+    },
+    {
+      "id": "934bbc43-57e5-4b9a-9e71-6d64725808c4",
+      "title": "大橋車流量(友誼)",
+      "category": "公共交通",
+      "aliases": [
+        "友誼大橋車流量"
+      ],
+      "exactAliases": [
+        "大橋車流量(友誼)"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=934bbc43-57e5-4b9a-9e71-6d64725808c4",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=934bbc43-57e5-4b9a-9e71-6d64725808c4"
+      ]
+    },
+    {
+      "id": "d5f2cfcf-29d7-453e-a72a-ba64ef944040",
+      "title": "大橋車流量(西灣)",
+      "category": "公共交通",
+      "aliases": [
+        "西灣大橋車流量"
+      ],
+      "exactAliases": [
+        "大橋車流量(西灣)"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=d5f2cfcf-29d7-453e-a72a-ba64ef944040",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=d5f2cfcf-29d7-453e-a72a-ba64ef944040"
+      ]
+    },
+    {
+      "id": "ffa03c4b-cb93-4d27-b82f-6fd05ed87f31",
+      "title": "夜間泊車位",
+      "category": "公共交通",
+      "aliases": [
+        "夜間停車位",
+        "夜泊車位"
+      ],
+      "exactAliases": [
+        "夜間泊車位"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=ffa03c4b-cb93-4d27-b82f-6fd05ed87f31",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=ffa03c4b-cb93-4d27-b82f-6fd05ed87f31"
+      ]
+    },
+    {
+      "id": "08767a5c-3550-481d-b0d7-e72c55098f63",
+      "title": "公共巴士站總數",
+      "category": "公共交通",
+      "aliases": [
+        "巴士站總數"
+      ],
+      "exactAliases": [
+        "公共巴士站總數"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "交通事務局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=08767a5c-3550-481d-b0d7-e72c55098f63",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=08767a5c-3550-481d-b0d7-e72c55098f63"
+      ]
+    },
+    {
+      "id": "712bf9fa-2ec1-4762-aa55-2cdaf23dd563",
+      "title": "實時天氣",
+      "category": "城市環境",
+      "aliases": [
+        "即時天氣",
+        "real-time weather"
+      ],
+      "exactAliases": [
+        "實時天氣"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "地球物理暨氣象局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=712bf9fa-2ec1-4762-aa55-2cdaf23dd563",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=712bf9fa-2ec1-4762-aa55-2cdaf23dd563"
+      ]
+    },
+    {
+      "id": "cdcd9dc6-d08c-4783-ae68-d3598a9b9945",
+      "title": "天氣預報",
+      "category": "城市環境",
+      "aliases": [
+        "weather forecast"
+      ],
+      "exactAliases": [
+        "天氣預報"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "地球物理暨氣象局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=cdcd9dc6-d08c-4783-ae68-d3598a9b9945",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=cdcd9dc6-d08c-4783-ae68-d3598a9b9945"
+      ]
+    },
+    {
+      "id": "69d48bce-21f6-4fe1-8b27-0882a645f630",
+      "title": "海上天氣預報",
+      "category": "城市環境",
+      "aliases": [
+        "沿岸天氣預報",
+        "marine weather forecast"
+      ],
+      "exactAliases": [
+        "海上天氣預報"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "地球物理暨氣象局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=69d48bce-21f6-4fe1-8b27-0882a645f630",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=69d48bce-21f6-4fe1-8b27-0882a645f630"
+      ]
+    },
+    {
+      "id": "b592a9c4-6fd5-4c71-97df-b6601b2e0d41",
+      "title": "強烈季侯風警告",
+      "category": "城市環境",
+      "aliases": [
+        "強烈季候風警告",
+        "monsoon warning"
+      ],
+      "exactAliases": [
+        "強烈季侯風警告"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "地球物理暨氣象局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=b592a9c4-6fd5-4c71-97df-b6601b2e0d41",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=b592a9c4-6fd5-4c71-97df-b6601b2e0d41"
+      ]
+    },
+    {
+      "id": "4831822b-5c43-4621-a325-42277da4a1ef",
+      "title": "過去7日紫外線值",
+      "category": "城市環境",
+      "aliases": [
+        "過去七日紫外線",
+        "UV history"
+      ],
+      "exactAliases": [
+        "過去7日紫外線值"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "地球物理暨氣象局",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=4831822b-5c43-4621-a325-42277da4a1ef",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=4831822b-5c43-4621-a325-42277da4a1ef"
+      ]
+    },
+    {
+      "id": "f6a9892d-7e16-49f0-bcd3-573d670cefe5",
+      "title": "公共廁所",
+      "category": "公共設施",
+      "aliases": [
+        "公廁",
+        "public toilets"
+      ],
+      "exactAliases": [
+        "公共廁所"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "市政署",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=f6a9892d-7e16-49f0-bcd3-573d670cefe5",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=f6a9892d-7e16-49f0-bcd3-573d670cefe5"
+      ]
+    },
+    {
+      "id": "513cba0e-684d-4cf1-bd3c-f8af1adb0392",
+      "title": "無障礙公廁",
+      "category": "公共設施",
+      "aliases": [
+        "無障礙廁所",
+        "accessible toilets"
+      ],
+      "exactAliases": [
+        "無障礙公廁"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "市政署",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=513cba0e-684d-4cf1-bd3c-f8af1adb0392",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=513cba0e-684d-4cf1-bd3c-f8af1adb0392"
+      ]
+    },
+    {
+      "id": "e410770e-caa6-4a56-872b-68b8af389cac",
+      "title": "市政活動場地",
+      "category": "公共設施",
+      "aliases": [
+        "市政場地",
+        "municipal venues"
+      ],
+      "exactAliases": [
+        "市政活動場地"
+      ],
+      "description": "已在澳門官方資料來源或現行政府服務中發現此資料名稱/ID，但尚未重新核實完整更新頻率、資料格式及 API／下載方式；不得作 exact match 或直接呼叫。",
+      "provider": "市政署",
+      "formats": [],
+      "detailUrl": "https://data.gov.mo/Detail?id=e410770e-caa6-4a56-872b-68b8af389cac",
+      "resourceUrls": [],
+      "verificationStatus": "manual_required",
+      "evidenceUrls": [
+        "https://data.gov.mo/Detail?id=e410770e-caa6-4a56-872b-68b8af389cac"
       ]
     }
   ]

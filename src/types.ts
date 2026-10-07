@@ -1,4 +1,5 @@
 export type Region = "HK" | "MO";
+export type VerificationStatus = "verified" | "manual_required" | "deprecated";
 
 export type DatasetCandidate = {
   region: Region;
@@ -19,6 +20,7 @@ export type DatasetCandidate = {
   accessNotes?: string;
   apiVerification?: string;
   evidenceUrls?: string[];
+  verificationStatus?: VerificationStatus;
   match: "exact" | "candidate";
   evidence: string[];
 };
