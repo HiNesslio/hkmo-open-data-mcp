@@ -111,7 +111,9 @@ export async function boundRequest(args:{region:Region;datasetId:string;resource
  const resource=dataset.resources[args.resourceId];
  if(!resource)throw new Error("Resource ID missing or not verified");
  if(args.body && resource.method!=="POST")throw new Error("Body is forbidden on GET resources");
- if(args.body && Buffer.byteLength(args.body)>32_768)throw new Error("POST body too large");
+ // The current government metadata does not provide a verified POST body schema.
+ // Fail closed rather than accepting arbitrary AI-created payloads.
+ if(args.body)throw new Error("POST body schema is not verified; arbitrary POST bodies are forbidden");
  const url=bindResource(resource,args.pathParams,args.queryParams);
  const headers=new Headers();
  if(resource.method==="POST" && args.body) {
