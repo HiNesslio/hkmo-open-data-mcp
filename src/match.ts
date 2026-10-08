@@ -1,25 +1,35 @@
 import type { DatasetCandidate, Region } from "./types.js";
-function stripRegionWords(s:string,region:Region):string {
-  if(region==="MO") return s.replace(/澳門|澳门|macao|macau/giu,"");
-  return s.replace(/香港|hong\s*kong|hongkong|(^|[\s,，、/])hk(?=$|[\s,，、/])/giu," ");
+
+function normalize(s: string, region: Region): string {
+  const withoutRegion = region === "MO"
+    ? s.replace(/澳門|澳门|macau|macao/giu, " ")
+    : s.replace(/香港|hong\s*kong|hongkong/giu, " ");
+  return withoutRegion.toLowerCase().normalize("NFKC").replace(/[\s\p{P}\p{S}]+/gu, "");
 }
-function normalizeExact(s:string,region:Region):string { return stripRegionWords(s.toLowerCase().normalize("NFKC"),region).replace(/[\s\p{P}\p{S}]+/gu,""); }
-function atoms(s:string,region:Region):string[] {
-  const stripped=stripRegionWords(s.toLowerCase().normalize("NFKC"),region),out=new Set<string>();
-  const chunks=stripped.split(/[\s,，、/()（）]+/).map(x=>x.trim()).filter(Boolean);
-  for(const chunk of chunks){ if(chunk.length>=2) out.add(chunk); if(/\p{Script=Han}/u.test(chunk)){ const segmenter=new Intl.Segmenter("zh-Hant",{granularity:"word"}); for(const part of segmenter.segment(chunk)){ const token=part.segment.trim(); if(part.isWordLike&&token.length>=2) out.add(token); } } }
-  return [...out];
+
+/** Removes only conversational framing; never removes dates, "live", period or metric qualifiers. */
+function normalizeRequest(query: string, region: Region): string {
+  let q = query.trim().replace(/^(?:請|麻煩|可否|可以|唔該|please\s*)*/iu, "");
+  q = q.replace(/^(?:幫我|幫手|替我|為我)?(?:查詢|查找|搜尋|搜索|搵下|搵|查下|查|找出|找|取得|提供|fetch|find|show\s*me)\s*/iu, "");
+  q = q.replace(/(?:嘅|的)?(?:官方)?(?:資料集|數據集|資料|數據|dataset)\s*$/iu, "");
+  return normalize(q, region);
 }
-export function strictMark(query:string,candidates:DatasetCandidate[]):DatasetCandidate[] {
-  return candidates.map(c=>{
-    const eligible=c.verificationStatus!=="manual_required"&&c.verificationStatus!=="deprecated";
-    const normalizedQuery=normalizeExact(query,c.region);
-    const exactTargets=[c.title,...(c.exactAliases??[])].map(x=>normalizeExact(x,c.region)).filter(Boolean);
-    const curatedExact=normalizedQuery.length>0&&exactTargets.includes(normalizedQuery);
-    const q=atoms(query,c.region),h=`${c.title} ${c.description??""}`.toLowerCase().normalize("NFKC");
-    const covered=q.filter(x=>h.includes(x)),coverageExact=q.length>0&&covered.length===q.length;
-    const exact=eligible&&(curatedExact||coverageExact);
-    const reason=!eligible?`verification status blocks exact: ${c.verificationStatus}`:(curatedExact?"curated exact title/alias match":`strict coverage ${covered.length}/${q.length}`);
-    return {...c,match:exact?"exact":"candidate",evidence:[...c.evidence,reason]};
+
+/**
+ * No fuzzy/word coverage promotion: semantic similarity, keywords and descriptions
+ * are discovery hints, NOT evidence that the requested metric/time/granularity exists.
+ * Only human-curated exact aliases or the complete official title can be exact.
+ */
+export function strictMark(query: string, candidates: DatasetCandidate[]): DatasetCandidate[] {
+  return candidates.map((candidate) => {
+    const verified = candidate.verificationStatus === "verified";
+    const q = normalizeRequest(query, candidate.region);
+    const names = [candidate.title, ...(candidate.exactAliases ?? [])]
+      .map((name) => normalize(name, candidate.region)).filter(Boolean);
+    const matched = verified && Boolean(q) && names.includes(q);
+    const evidence = matched ? "exact official title / curated alias"
+      : !verified ? `verification status blocks exact: ${candidate.verificationStatus ?? "unknown"}`
+      : "related metadata only; exact title/alias and requested dimensions not verified";
+    return { ...candidate, match: matched ? "exact" as const : "candidate" as const, evidence: [...candidate.evidence, evidence] };
   });
 }

@@ -63,7 +63,16 @@ export function findVerifiedMacaoDatasetIdByApiUrl(raw: string): string | null {
   return null;
 }
 
+export function requireVerifiedMacaoDataset(datasetId: string): any {
+  const entry = (registry.datasets as Array<any>).find(d=>d.id===datasetId);
+  if (!entry || entry.verificationStatus!=="verified") {
+    throw new Error("Macao dataset is not verified; manual_required/deprecated/unknown datasets cannot be called.");
+  }
+  return entry;
+}
 async function fetchResolved(datasetId: string, forceRefresh = false): Promise<ResolvedMacaoAccess> {
+  const entry = requireVerifiedMacaoDataset(datasetId);
+  if (entry.accessMethod!=="API") throw new Error("This verified Macao dataset does not publish an API resource.");
   if (!forceRefresh) {
     const hit = cache.get(datasetId);
     if (hit && hit.expiresAt > Date.now()) return hit.value;
@@ -112,6 +121,13 @@ async function fetchResolved(datasetId: string, forceRefresh = false): Promise<R
 
   if (!apis.length) throw new Error("Official Macao API metadata did not expose a callable apiPath.");
 
+  // Reject metadata endpoints outside the government boundary even if the detail endpoint is trusted.
+  for (const api of apis) {
+    const url = new URL(api.apiPath);
+    if (url.protocol!=="https:" || !url.hostname.endsWith(".apigateway.data.gov.mo")) {
+      throw new Error("The official API metadata returned an unexpected API host.");
+    }
+  }
   const value: ResolvedMacaoAccess = {
     datasetId,
     metadataUrl,
@@ -141,6 +157,7 @@ export async function resolveMacaoApiAccess(datasetId: string, targetUrl?: strin
 }
 
 export async function inspectMacaoDatasetDetail(datasetId: string) {
+  requireVerifiedMacaoDataset(datasetId);
   const resolved = await resolveMacaoApiAccess(datasetId);
   return {
     kind: "macao_dataset_detail",

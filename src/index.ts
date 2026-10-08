@@ -6,128 +6,126 @@ import { resolveRegion } from "./region.js";
 import { searchHongKong } from "./catalog/hk.js";
 import { searchMacao } from "./catalog/mo.js";
 import { strictMark } from "./match.js";
-import { safeFetch } from "./http.js";
-import { datasetIdFromMacaoDetailUrl, findVerifiedMacaoDatasetIdByApiUrl, inspectMacaoDatasetDetail, resolveMacaoApiAccess } from "./macao-auth.js";
-import type { SearchResult } from "./types.js";
+import { assertOfficialUrl, safeFetch } from "./http.js";
+import { datasetIdFromMacaoDetailUrl, inspectMacaoDatasetDetail, requireVerifiedMacaoDataset } from "./macao-auth.js";
+import { inspectDataset, boundRequest, bindResource } from "./access.js";
+import { parseData } from "./data-reader.js";
+import type { Region, SearchResult } from "./types.js";
 
-const RegionSchema = z.enum(["HK", "MO"]);
-
-function textResult(value: unknown) {
-  return { content: [{ type: "text" as const, text: JSON.stringify(value, null, 2) }] };
+const regionSchema=z.enum(["HK","MO"]);
+const paramsSchema=z.record(z.string(),z.string().max(100)).optional();
+const genericOutput=z.object({status:z.string()}).passthrough();
+function result(data:Record<string,unknown>,isError=false) {
+  const encoded=JSON.stringify(data);
+  return {content:[{type:"text" as const,text:encoded.length>50_000?encoded.slice(0,50_000)+"…":encoded}],structuredContent:data,isError};
 }
+function error(e:unknown) {
+  const message=e instanceof Error?e.message:String(e);
+  const code=/not verified|manual_required|deprecated/i.test(message)?"UNVERIFIED_DATASET"
+    :/Missing|Invalid|Undocumented|forbidden|does not match|not allowed|Unsupported/i.test(message)?"INVALID_REQUEST"
+    :/HTTP 429/.test(message)?"RATE_LIMITED"
+    :/HTTP [45]\d\d|fetch failed|timed out|abort/i.test(message)?"SOURCE_UNAVAILABLE":"QUERY_FAILED";
+  return result({status:"ERROR",code,message},true);
+}
+const protect=async(f:()=>Promise<Record<string,unknown>>) => {
+  try{return result(await f());}catch(e){return error(e);}
+};
 
-serveStdio(() => {
-  const server = new McpServer({
-    name: "hkmo-open-data-mcp",
-    version: "0.1.0",
-    description: "Strict Hong Kong and Macao government open-data discovery and access. Never substitute similar data."
-  });
+serveStdio(()=>{
+  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.2.0",description:"Verified HK/MO government open-data discovery, safe API access and structured reading."});
 
-  server.registerTool("resolve_region", {
-    description: "Resolve whether a request is for Hong Kong or Macao. If not explicit, return a clarification question instead of guessing.",
-    inputSchema: z.object({ query: z.string().min(1), region: RegionSchema.optional() })
-  }, async ({ query, region }) => textResult(resolveRegion(query, region)));
+  server.registerTool("resolve_region",{
+    description:"Determine Hong Kong or Macao; when ambiguous ask instead of guessing.",
+    inputSchema:z.object({query:z.string().min(1),region:regionSchema.optional()})
+  },async({query,region})=>result({status:"OK",...resolveRegion(query,region)}));
 
-  server.registerTool("search_datasets", {
-    description: "Search official HK/MO government open-data metadata. Region is mandatory. Similar datasets are candidates only; they must never be silently substituted for the requested dataset.",
-    inputSchema: z.object({
-      query: z.string().min(1),
-      region: RegionSchema,
-      discoveryKeywords: z.array(z.string()).max(12).optional().describe("Optional multilingual synonyms used only to discover candidates, never to relax final matching."),
-      limit: z.number().int().min(1).max(20).default(10)
-    })
-  }, async ({ query, region, discoveryKeywords = [], limit }) => {
-    const raw = region === "HK"
-      ? await searchHongKong(query, discoveryKeywords, limit)
-      : await searchMacao(query, discoveryKeywords, limit);
-    const marked = strictMark(query, raw);
-    const exact = marked.filter((x) => x.match === "exact");
-    const result: SearchResult = exact.length ? {
-      status: "FOUND",
-      region,
-      query,
-      candidates: exact,
-      message: "Exact metadata match found. Verify the official detail/resource before use."
-    } : marked.length ? {
-      status: "NOT_FOUND",
-      region,
-      query,
-      candidates: marked,
-      message: "未找到完全符合要求的政府公開數據。以下只係候選相關資料，不得代替使用。"
-    } : {
-      status: region === "MO" ? "DISCOVERY_LIMITED" : "NOT_FOUND",
-      region,
-      query,
-      candidates: [],
-      message: region === "MO"
-        ? "澳門本機 registry 未找到相符資料。請使用官方 data.gov.mo 搜尋並將官方 Detail URL 交給 inspect_official_url；不得用相似資料代替。"
-        : "未找到完全符合要求的政府公開數據。"
-    };
-    return textResult(result);
-  });
+  server.registerTool("search_datasets",{
+    description:"Discover official metadata. Only an exact verified title/curated alias can be FOUND; description token matches are never proof.",
+    inputSchema:z.object({query:z.string().min(1),region:regionSchema,discoveryKeywords:z.array(z.string()).max(12).optional(),limit:z.number().int().min(1).max(20).default(10)}),
+    outputSchema:genericOutput
+  },async({query,region,discoveryKeywords=[],limit})=>protect(async()=>{
+    const raw=region==="HK"?await searchHongKong(query,discoveryKeywords,limit):await searchMacao(query,discoveryKeywords,limit);
+    const marked=strictMark(query,raw);
+    const exact=marked.filter(x=>x.match==="exact");
+    const found:SearchResult=exact.length?{status:"FOUND",region,query,candidates:exact,message:"Exact verified dataset metadata match; resource access remains separately verified."}:
+      marked.length?{status:"NOT_FOUND",region,query,candidates:marked,message:"只找到相關／未驗證候選，不能代替原要求。"}:
+      {status:region==="MO"?"DISCOVERY_LIMITED":"NOT_FOUND",region,query,candidates:[],message:"未找到完全相符的官方資料；搜尋目錄未必完整。"};
+    return found as unknown as Record<string,unknown>;
+  }));
 
-  server.registerTool("inspect_official_url", {
-    description: "Inspect an official HK/MO government HTTPS URL. For data.gov.mo Detail URLs, resolve the SPA's official runtime metadata, current APPCODE availability, and published apiPath without exposing the APPCODE value.",
-    inputSchema: z.object({
-      url: z.string().url(),
-      maxBytes: z.number().int().min(1024).max(2_000_000).default(500_000)
-    })
-  }, async ({ url, maxBytes }) => {
-    const datasetId = datasetIdFromMacaoDetailUrl(url);
-    if (datasetId) return textResult(await inspectMacaoDatasetDetail(datasetId));
-
-    const res = await safeFetch(url, {}, maxBytes);
-    return textResult({ ...res, text: res.text.slice(0, maxBytes) });
-  });
-
-  server.registerTool("call_official_api", {
-    description: "Call a verified official HK/MO government API. For verified Macao data.gov.mo API-gateway datasets, if Authorization is omitted the MCP resolves the current public APPCODE from official runtime metadata and injects it ephemerally. Never invent tokens, headers, or parameters.",
-    inputSchema: z.object({
-      url: z.string().url(),
-      method: z.enum(["GET", "POST"]).default("GET"),
-      headers: z.record(z.string(), z.string()).optional(),
-      body: z.string().optional(),
-      datasetId: z.string().uuid().optional().describe("Optional data.gov.mo dataset UUID used to resolve the official runtime APPCODE. If omitted, the MCP may infer it only from a verified registry resource URL."),
-      maxBytes: z.number().int().min(1024).max(2_000_000).default(1_000_000)
-    })
-  }, async ({ url, method, headers, body, datasetId, maxBytes }) => {
-    const outgoing = new Headers(headers ?? {});
-    let autoAuth = false;
-    let resolvedDatasetId = datasetId;
-
-    const host = new URL(url).hostname.toLowerCase();
-    const isMacaoGateway = host.endsWith(".apigateway.data.gov.mo");
-    if (isMacaoGateway && !outgoing.has("authorization")) {
-      resolvedDatasetId ??= findVerifiedMacaoDatasetIdByApiUrl(url) ?? undefined;
-      if (!resolvedDatasetId) {
-        throw new Error("Missing Authorization and no verified data.gov.mo dataset could be mapped to this API URL. Inspect the official Detail URL and pass datasetId.");
-      }
-
-      const access = await resolveMacaoApiAccess(resolvedDatasetId, url);
-      outgoing.set("authorization", `APPCODE ${access.appCode}`);
-      autoAuth = true;
+  server.registerTool("inspect_official_url",{
+    description:"Inspect HTTPS government URL; Macao SPA Detail uses official metadata without exposing APPCODE.",
+    inputSchema:z.object({url:z.string().url(),maxBytes:z.number().int().min(1024).max(2_000_000).default(200_000)}),
+    outputSchema:genericOutput
+  },async({url,maxBytes})=>protect(async()=>{
+    const id=datasetIdFromMacaoDetailUrl(url);
+    if(id) {
+      requireVerifiedMacaoDataset(id);
+      return {status:"OK",...(await inspectMacaoDatasetDetail(id))};
     }
+    assertOfficialUrl(url);
+    const r=await safeFetch(url,{},maxBytes);
+    return {status:r.status===200?"OK":"SOURCE_UNAVAILABLE",url:r.url,httpStatus:r.status,contentType:r.contentType,text:r.text.slice(0,maxBytes)};
+  }));
 
-    let res = await safeFetch(url, { method, headers: outgoing, body }, maxBytes);
+  server.registerTool("inspect_dataset",{
+    description:"Inspect a verified dataset: title, publisher, frequency, available formats and resources. No data download required.",
+    inputSchema:z.object({region:regionSchema,datasetId:z.string().min(1).max(160)}),
+    outputSchema:genericOutput
+  },async({region,datasetId})=>protect(async()=>({status:"OK",dataset:await inspectDataset(region,datasetId)})));
 
-    if (autoAuth && method === "GET" && [400, 401, 403].includes(res.status) && resolvedDatasetId) {
-      const refreshed = await resolveMacaoApiAccess(resolvedDatasetId, url, true);
-      outgoing.set("authorization", `APPCODE ${refreshed.appCode}`);
-      res = await safeFetch(url, { method, headers: outgoing, body }, maxBytes);
-    }
+  server.registerTool("list_resources",{
+    description:"List approved official resources and required path/query parameter names for a verified dataset.",
+    inputSchema:z.object({region:regionSchema,datasetId:z.string().min(1).max(160)}),
+    outputSchema:genericOutput
+  },async({region,datasetId})=>protect(async()=>{
+    const dataset=await inspectDataset(region,datasetId);
+    return {status:"OK",datasetId,region,detailUrl:dataset.detailUrl,resources:dataset.resources};
+  }));
 
-    return textResult({
-      ...res,
-      auth: autoAuth ? {
-        scheme: "APPCODE",
-        source: "official data.gov.mo runtime metadata",
-        injected: true,
-        value: "[redacted]",
-        datasetId: resolvedDatasetId
-      } : { injected: false },
-      text: res.text.slice(0, maxBytes)
-    });
-  });
+  server.registerTool("query_dataset",{
+    description:"Read only a verified official resource. Structured JSON/XML/CSV/XLSX output with row limits, columns, provenance. No guessed endpoints or parameters.",
+    inputSchema:z.object({
+      region:regionSchema,datasetId:z.string().min(1).max(160),
+      resourceId:z.number().int().min(0).default(0),
+      pathParams:paramsSchema,queryParams:paramsSchema,
+      body:z.string().max(32768).optional(),
+      limit:z.number().int().min(1).max(50).default(20),offset:z.number().int().min(0).max(10000).default(0),
+      fields:z.array(z.string()).max(30).optional()
+    }),
+    outputSchema:genericOutput
+  },async(args)=>protect(async()=>{
+    const {dataset,resource,result:r}=await boundRequest(args);
+    const data=await parseData(r,{limit:args.limit,offset:args.offset,fields:args.fields,format:resource.format});
+    return {status:"OK",datasetId:dataset.id,datasetTitle:dataset.title,officialSource:dataset.detailUrl,updateFrequency:dataset.updateFrequency,resourceId:resource.id,...data};
+  }));
 
+  server.registerTool("call_official_api",{
+    description:"Legacy compatibility. Only registered resources of a verified dataset can be called; user Authorization, arbitrary URLs, methods and unverified datasets are blocked. Prefer query_dataset.",
+    inputSchema:z.object({
+      url:z.string().url(),datasetId:z.string().min(1).max(160),
+      region:regionSchema,
+      method:z.enum(["GET","POST"]).default("GET"),
+      resourceId:z.number().int().min(0).default(0),
+      pathParams:paramsSchema,queryParams:paramsSchema,
+      headers:z.record(z.string(),z.string()).optional(),body:z.string().max(32768).optional(),
+      maxBytes:z.number().int().min(1024).max(2_000_000).default(1_000_000)
+    }),
+    outputSchema:genericOutput
+  },async(args)=>protect(async()=>{
+    if(Object.keys(args.headers??{}).some(k=>k.toLowerCase()!=="accept"))throw new Error("Manual authentication/headers forbidden; the MCP resolves approved credentials itself.");
+    // Validate the legacy URL and HTTP method BEFORE issuing any request.
+    const meta=await inspectDataset(args.region,args.datasetId);
+    const declared=meta.resources[args.resourceId];
+    if(!declared)throw new Error("Resource ID not found");
+    const expected=bindResource(declared,args.pathParams,args.queryParams);
+    if(new URL(expected).toString()!==new URL(args.url).toString())throw new Error("URL does not match the verified dataset resource");
+    if(args.method!==declared.method)throw new Error("Method does not match the verified dataset resource");
+    const bound=await boundRequest(args);
+    if(bound.result.status<200||bound.result.status>=300)throw new Error(`Upstream HTTP ${bound.result.status}`);
+    const text=Buffer.from(bound.result.bytes).toString("utf8");
+    return {status:"OK",url:bound.result.url,contentType:bound.result.contentType,httpStatus:bound.result.status,
+      datasetId:args.datasetId,officialSource:bound.dataset.detailUrl,text:text.slice(0,args.maxBytes)};
+  }));
   return server;
 });

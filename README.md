@@ -72,6 +72,39 @@ https://github.com/HiNesslio/hkmo-open-data-mcp
 
 ---
 
+## v0.2：AI 可以直接讀取資料
+
+新版不只可以找政府 dataset，仲會幫你解析常用格式，回傳**有欄位名稱、列數限制、官方來源**嘅結果。
+
+例如安裝後向 AI 說：
+
+> 請找澳門「停車場車位資訊」官方 dataset，列出車位資訊，最多 10 筆，附上政府來源。
+
+AI 可以按以下次序使用 MCP：
+
+1. `search_datasets`：只有官方**完整標題或經核實嘅 exact alias** 才算 FOUND。
+2. `inspect_dataset`：檢查資料集、更新頻率同資源。
+3. `list_resources`：取得可用資源 ID，同所需路徑／查詢參數。
+4. `query_dataset`：由 MCP 使用已驗證 resource、讀取 JSON／XML／CSV／XLSX，按筆數及欄位輸出。
+
+**新增安全限制：** `call_official_api` 保留作舊介面，但必須傳入 `region`、`datasetId`、`resourceId` 同與該資源完全相同嘅 URL／方法。任意官方 URL、私自指定 Authorization、未驗證 dataset、未列明參數都不能直接調用。建議新用戶使用 `query_dataset`。
+
+**檔案支援：** JSON、XML、CSV、XLSX（XLS、Shapefile、ZIP 暫不直接解析）。資料請求和試算表有大小限制；預設只回傳 20 筆，最多 50 筆，避免把整份大型檔案灌進 AI。澳門下載型 dataset 若未提供可核實嘅實際下載連結，只會列出資料集，唔會猜 URL。
+
+> 這是 open-data access 工具，唔係全能資料爬蟲。香港／澳門官方 metadata 變動、來源失效或部分非 `gov.hk`／`gov.mo` 嘅外部資源可能無法直接使用。無法核實時會明確失敗，唔會用其他數據代替。
+
+### 本地驗證（不使用 GitHub Actions）
+
+```bash
+npm install
+npm run check
+npm run e2e
+```
+
+`npm run check` 測程式同 parser；`npm run e2e` 會即時連接官方網站，可能受政府服務連線情況影響。
+
+---
+
 ## 為什麼要做這個？
 
 政府其實已經公開了很多有用資料，但對一般使用者來說，常見問題是：
@@ -274,7 +307,7 @@ skill/SKILL.md
 
 ---
 
-## 驗證
+## 舊版驗證說明
 
 普通測試：
 
@@ -449,6 +482,16 @@ npm run e2e
 ```
 
 Live E2E covers Hong Kong and Macao official endpoints, including Macao runtime APPCODE → live car-park API access.
+
+## v0.2 structured data access
+
+The MCP now requires verified dataset/resource binding for all API calls. Discover with `search_datasets`, then use `inspect_dataset`, `list_resources`, and `query_dataset`. Only exact official titles or curated aliases are considered exact; full-text word coverage is not sufficient.
+
+The built-in reader supports bounded JSON, XML, CSV and XLSX rows with column selection and official provenance. Unsupported binary formats such as XLS, generic ZIP and Shapefile are not silently interpreted.
+
+The legacy `call_official_api` tool remains available but requires a verified region, dataset ID, resource ID, matching URL and method. Manual Authorization and arbitrary query parameters are rejected.
+
+Run `npm run check` and `npm run e2e` on your own computer; no GitHub Actions workflow is used.
 
 ## License
 

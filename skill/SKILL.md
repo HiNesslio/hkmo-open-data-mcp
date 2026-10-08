@@ -23,10 +23,13 @@ Use this skill when a user asks to find, inspect, or retrieve Hong Kong or Macao
 1. Call `resolve_region` unless region is already explicit.
 2. If clarification is required, ask the user and stop.
 3. Call `search_datasets` with the original request and region. Add `discoveryKeywords` only as search aids.
-4. If status is `FOUND`, confirm the selected dataset is `verified`, then inspect the official detail/resource before calling data APIs.
+4. If status is `FOUND`, confirm the selected dataset is `verified`, then call `inspect_dataset` and `list_resources`. Exact only means a complete official title or verified curated alias; keywords in descriptions can NEVER promote candidates.
 5. If status is `NOT_FOUND`, say the requested dataset was not found. A `manual_required` or semantically similar candidate may be mentioned as unverified/related context only; do not call it.
 6. If Macao returns `DISCOVERY_LIMITED`, search `data.gov.mo` using the host application's web capability if available, then pass only an official `data.gov.mo`/`api.data.gov.mo` URL to `inspect_official_url`. If no official exact match is found, return not found.
-7. Use `call_official_api` only after endpoint, method and required parameters have been verified. For verified Macao API-gateway datasets, omit Authorization unless the user explicitly supplied a verified value; the MCP should resolve and inject the current official APPCODE internally.
+7. Prefer `query_dataset(region,datasetId,resourceId,...)`, allowing the MCP to validate the selected official resource, read bounded JSON/XML/CSV/XLSX, and attach provenance. Do not invent parameter names or values; list resources first.
+8. The legacy `call_official_api` also requires region, datasetId and resourceId, and the supplied URL/method must match the bound resource exactly. NEVER supply custom Authorization for Macao: the MCP injects an ephemeral official APPCODE itself.
+9. When XLS, generic ZIP, Shapefile or an unverifiable download is encountered, report an explicit unsupported/unavailable state; do not fabricate a parse result.
+10. A network outage or authentication failure is not evidence that a dataset is nonexistent.
 
 ## Example
 
