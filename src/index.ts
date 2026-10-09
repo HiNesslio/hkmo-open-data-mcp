@@ -11,7 +11,7 @@ import { datasetIdFromMacaoDetailUrl, inspectMacaoDatasetDetail, requireVerified
 import { inspectDataset, boundRequest, bindResource } from "./access.js";
 import { parseData } from "./data-reader.js";
 import { inspectGeoZip, exportShapefile } from "./geo.js";
-import { HK_CSDI_SOURCES, inspectCsdiLayers, fetchCsdiGeometry, exportCsdiGeometry } from "./csdi.js";
+import { HK_CSDI_SOURCES, inspectCsdiLayers, fetchCsdiGeometry, exportCsdiGeometry, fetchCsdiBusRoute, exportCsdiBusRoute } from "./csdi.js";
 import type { Region, SearchResult } from "./types.js";
 
 const regionSchema=z.enum(["HK","MO"]);
@@ -34,7 +34,7 @@ const protect=async(f:()=>Promise<Record<string,unknown>>) => {
 };
 
 serveStdio(()=>{
-  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.4.0",description:"Verified HK/MO government open data, secure API access, structured reading and Shapefile ZIP exports."});
+  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.5.0",description:"Verified HK/MO government open data, secure API access, structured reading and Shapefile ZIP exports."});
 
   server.registerTool("resolve_region",{
     description:"Determine Hong Kong or Macao; when ambiguous ask instead of guessing.",
@@ -126,10 +126,11 @@ serveStdio(()=>{
   },async(args)=>protect(async()=>await exportShapefile(args)));
 
 
-  const csdiSource=z.enum(["road_centreline","road_network"]);
+  const csdiSource=z.enum(["road_centreline","road_network","bus_route"]);
+  const csdiRoadSource=z.enum(["road_centreline","road_network"]);
   const bboxSchema=z.tuple([z.number(),z.number(),z.number(),z.number()]);
   server.registerTool("inspect_csdi_layers",{
-    description:"Discover available official Hong Kong CSDI road geometry services/layers. Road Centreline is map geometry; Road Network includes transport network attributes. Always inspect before choosing a layer. A road line is not automatically a bus route.",
+    description:"Inspect official Hong Kong CSDI layers, including TD Bus Route polylines (for real bus-route bends), Road Centreline (roads), and Road Network (roads). Always discover the layer ID and fields before querying.",
     inputSchema:z.object({source:csdiSource.optional()}),outputSchema:genericOutput
   },async({source})=>protect(async()=>source
     ? (await inspectCsdiLayers(source) as unknown as Record<string,unknown>)
@@ -139,7 +140,7 @@ serveStdio(()=>{
   server.registerTool("query_csdi_geometry",{
     description:"Preview a SMALL bounded page of official CSDI line features as WGS84 GeoJSON. Hong Kong only. For a full local GeoJSON/interactive map/Python PNG use export_csdi_geometry. This is an independent road layer, not a bus-route snap.",
     inputSchema:z.object({
-      source:csdiSource,layerId:z.number().int().min(0),bbox:bboxSchema,
+      source:csdiRoadSource,layerId:z.number().int().min(0),bbox:bboxSchema,
       limit:z.number().int().min(1).max(10).default(5),offset:z.number().int().min(0).max(100000).default(0)
     }),outputSchema:genericOutput
   },async(args)=>protect(async()=>{
@@ -157,6 +158,34 @@ serveStdio(()=>{
       mapEngine:z.enum(["maplibre_html","react_mapbox"]).optional()
     }),outputSchema:genericOutput
   },async(args)=>protect(async()=>await exportCsdiGeometry(args)));
+
+
+  server.registerTool("query_csdi_bus_route",{
+    description:"Read the actual Transport Department CSDI Bus Route polyline for a specified official ROUTE_ID or bus route name. This is NOT a road-centreline snap or straight stop-to-stop segments. Preserve ROUTE_SEQ; do NOT assume 1=outbound or 2=inbound. Inspect bus_route layer first to get its published layer ID.",
+    inputSchema:z.object({
+      layerId:z.number().int().min(0),routeId:z.string().min(1).max(48).optional(),
+      routeNumber:z.string().min(1).max(48).optional(),
+      routeSeq:z.number().int().min(1).max(99).optional(),
+      limit:z.number().int().min(1).max(5).default(5),
+      offset:z.number().int().min(0).max(10000).default(0)
+    }),outputSchema:genericOutput
+  },async(args)=>protect(async()=>{
+    const {collection,...meta}=await fetchCsdiBusRoute(args);
+    return {...meta,features:collection.features};
+  }));
+
+  server.registerTool("export_csdi_bus_route",{
+    description:"Export actual TD CSDI franchised bus route polyline bends in GeoJSON, MapLibre/React Mapbox, or GeoPandas PNG. Select route by official routeId or routeNumber; preserve ROUTE_SEQ, never guess outward/inward directions. Ask for outputMode when absent.",
+    inputSchema:z.object({
+      layerId:z.number().int().min(0),routeId:z.string().min(1).max(48).optional(),
+      routeNumber:z.string().min(1).max(48).optional(),
+      routeSeq:z.number().int().min(1).max(99).optional(),
+      limit:z.number().int().min(1).max(20).default(10),
+      offset:z.number().int().min(0).max(10000).default(0),
+      outputMode:z.enum(["geojson","interactive_map","python_image"]).optional(),
+      mapEngine:z.enum(["maplibre_html","react_mapbox"]).optional()
+    }),outputSchema:genericOutput
+  },async(args)=>protect(async()=>await exportCsdiBusRoute(args)));
 
   server.registerTool("call_official_api",{
     description:"Legacy compatibility. Only registered resources of a verified dataset can be called; user Authorization, arbitrary URLs, methods and unverified datasets are blocked. Prefer query_dataset.",

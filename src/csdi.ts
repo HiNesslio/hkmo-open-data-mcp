@@ -13,10 +13,16 @@ export const HK_CSDI_SOURCES = {
     datasetId: "td_rcd_1638949160594_2844",
     title: "Road Network / 道路網絡",
     purpose: "Transport Department road network and traffic restrictions; verify layer schema and road identifiers before joining."
+  },
+  bus_route: {
+    datasetId: "td_rcd_1638844988873_41214",
+    title: "Bus Route / 巴士路線",
+    purpose: "Transport Department franchised BUS ROUTE polyline geometry with route identity and sequence; the correct source for curved bus-route maps, not Road Centreline."
   }
 } as const;
 
 export type CsdiSource = keyof typeof HK_CSDI_SOURCES;
+export type CsdiRoadSource = Exclude<CsdiSource,"bus_route">;
 type Bounds = [number,number,number,number];
 type Layer = {id:number;name:string;type?:string;geometryType?:string;defaultVisibility?:boolean};
 type GeoFeature = {type:"Feature";geometry:{type:string;coordinates?:any;geometries?:unknown[]}|null;properties:Record<string,unknown>|null};
@@ -61,7 +67,7 @@ export async function inspectCsdiLayers(source:CsdiSource) {
    status:"OK",source,officialDataset:HK_CSDI_SOURCES[source],
    datasetUrl:`https://portal.csdi.gov.hk/csdi-webpage/dataset/${HK_CSDI_SOURCES[source].datasetId}`,
    serviceUrl:url,layers,
-   note:"Use a published layer ID; Road Centreline is for approximate location and labelling. Do not infer bus paths from straight-line route points."
+   note:source==="bus_route"?"Bus Route is franchised bus polyline geometry. Check ROUTE_ID / ROUTE_SEQ in the selected layer; ROUTE_SEQ must not automatically be labelled O/I.":"Road Centreline and Road Network describe roads, not bus-route shapes. Use bus_route for bus route polylines."
  };
 }
 export function validateCsdiGeojson(data:unknown,maxFeatures:number):GeoFeatureCollection {
@@ -76,7 +82,7 @@ export function validateCsdiGeojson(data:unknown,maxFeatures:number):GeoFeatureC
  if(features.length)geoBounds([{type:"FeatureCollection",features}] as any);
  return {type:"FeatureCollection",fileName:"hk-csdi-road-geometry",features};
 }
-export async function fetchCsdiGeometry(args:{source:CsdiSource;layerId:number;bbox:number[];limit?:number;offset?:number}) {
+export async function fetchCsdiGeometry(args:{source:CsdiRoadSource;layerId:number;bbox:number[];limit?:number;offset?:number}) {
  const bbox=validateHkBounds(args.bbox);
  if(!Number.isSafeInteger(args.layerId)||args.layerId<0)throw new Error("CSDI_LAYER_INVALID");
  const limit=Math.min(200,Math.max(1,args.limit??100));
@@ -118,7 +124,7 @@ export async function fetchCsdiGeometry(args:{source:CsdiSource;layerId:number;b
  };
 }
 export async function exportCsdiGeometry(args:{
- source:CsdiSource;layerId:number;bbox:number[];limit?:number;offset?:number;
+ source:CsdiRoadSource;layerId:number;bbox:number[];limit?:number;offset?:number;
  outputMode?:GeoOutputMode;mapEngine?:MapEngine
 }) {
  if(!args.outputMode)return {
@@ -145,4 +151,108 @@ export async function exportCsdiGeometry(args:{
    featureCount:query.featureCount,mayHaveMore:query.mayHaveMore,nextOffset:query.nextOffset,provenanceFile,
    warning:query.warning,...art
  };
+}
+
+/** Official TD Bus Route polylines, never synthesized from stops or road centreline. */
+export type BusRouteQuery={
+ layerId:number;routeId?:string;routeNumber?:string;routeSeq?:number;limit?:number;offset?:number
+};
+type FieldSpec={name:string;type:string};
+function fieldOf(fields:FieldSpec[],name:string):FieldSpec|undefined {
+ return fields.find(f=>f.name.toUpperCase()===name.toUpperCase());
+}
+export function buildBusRouteWhere(fields:FieldSpec[],args:Pick<BusRouteQuery,"routeId"|"routeNumber"|"routeSeq">):string {
+ const routeId=args.routeId?.trim(),routeNumber=args.routeNumber?.trim();
+ if(!routeId&&!routeNumber)throw new Error("CSDI_ROUTE_SELECTOR_REQUIRED: provide an official routeId or routeNumber");
+ if(routeId&&routeNumber)throw new Error("CSDI_ROUTE_SELECTOR_AMBIGUOUS: choose routeId OR routeNumber");
+ const tests:string[]=[];
+ const identity=routeId ? fieldOf(fields,"ROUTE_ID") :
+    fieldOf(fields,"ROUTE_NAMEE") ?? fieldOf(fields,"ROUTE_NAMEC");
+ if(!identity)throw new Error("CSDI_ROUTE_FIELD_MISSING: official layer has no matching ROUTE_ID / ROUTE_NAME field");
+ const value=routeId??routeNumber!;
+ if(!/^[\p{L}\p{N} ._+/-]{1,48}$/u.test(value))throw new Error("CSDI_ROUTE_ID_INVALID: unexpected characters");
+ // Values are never interpolated as SQL syntax; reject quotes and semicolons above.
+ if(/(?:Integer|SmallInteger|Double|Single|OID)/i.test(identity.type)) {
+   if(!/^\d{1,14}$/.test(value))throw new Error("CSDI_ROUTE_ID_INVALID: numeric field requires digits");
+   tests.push(`${identity.name} = ${value}`);
+ }else{
+   tests.push(`${identity.name} = '${value}'`);
+ }
+ if(args.routeSeq!==undefined){
+   if(!Number.isSafeInteger(args.routeSeq)||args.routeSeq<1||args.routeSeq>99)throw new Error("CSDI_ROUTE_SEQ_INVALID");
+   const sequence=fieldOf(fields,"ROUTE_SEQ");
+   if(!sequence)throw new Error("CSDI_ROUTE_SEQ_FIELD_MISSING");
+   tests.push(`${sequence.name} = ${/(?:Integer|SmallInteger|Double|Single|OID)/i.test(sequence.type)?args.routeSeq:"'"+args.routeSeq+"'"}`);
+ }
+ return tests.join(" AND ");
+}
+function fieldValues(collection:GeoFeatureCollection,key:string):string[]{
+ return [...new Set(collection.features.map(f=>{
+  const properties=f.properties??{};
+  const candidate=Object.entries(properties).find(([k])=>k.toUpperCase()===key);
+  return candidate?.[1]===null||candidate?.[1]===undefined ? "" : String(candidate[1]);
+ }).filter(Boolean))];
+}
+export async function fetchCsdiBusRoute(args:BusRouteQuery) {
+ if(!Number.isSafeInteger(args.layerId)||args.layerId<0)throw new Error("CSDI_LAYER_INVALID");
+ const limit=Math.min(20,Math.max(1,args.limit??10));
+ const offset=args.offset??0;
+ if(!Number.isSafeInteger(offset)||offset<0||offset>10000)throw new Error("CSDI_OFFSET_INVALID");
+ const source="bus_route" as const;
+ const service=csdiServiceUrl(source);
+ const catalog=parseLayerCatalog(await jsonFromOfficial(service+"?f=pjson"));
+ const layer=catalog.find(l=>l.id===args.layerId);
+ if(!layer)throw new Error("CSDI_LAYER_UNKNOWN: inspect the published Bus Route layer ID first");
+ const detail=await jsonFromOfficial(`${service}/${layer.id}?f=pjson`);
+ if(detail.geometryType!=="esriGeometryPolyline")throw new Error("CSDI_NOT_BUS_LINES: selected layer is not a bus polyline");
+ if(!Array.isArray(detail.fields))throw new Error("CSDI_ROUTE_SCHEMA_UNAVAILABLE: official field metadata missing");
+ const fields=detail.fields.filter((f:any)=>typeof f.name==="string"&&typeof f.type==="string") as FieldSpec[];
+ const where=buildBusRouteWhere(fields,args);
+ const url=new URL(`${service}/${layer.id}/query`);
+ for(const [key,value] of Object.entries({
+    f:"geojson",where,returnGeometry:"true",outSR:"4326",outFields:"*",
+    resultOffset:String(offset),resultRecordCount:String(limit)
+ })) url.searchParams.set(key,value);
+ const data=await jsonFromOfficial(url.toString());
+ const collection=validateCsdiGeojson(data,limit);
+ collection.fileName="hk-td-bus-route";
+ const ids=fieldValues(collection,"ROUTE_ID");
+ const sequences=fieldValues(collection,"ROUTE_SEQ");
+ const names=fieldValues(collection,"ROUTE_NAMEE");
+ if(args.routeId && ids.some(id=>id!==args.routeId))throw new Error("CSDI_ROUTE_ID_MISMATCH: upstream returned a different route ID");
+ if(args.routeSeq!==undefined && sequences.some(seq=>Number(seq)!==args.routeSeq))throw new Error("CSDI_ROUTE_SEQ_MISMATCH");
+ const count=collection.features.length;
+ const mayHaveMore=count===limit||Boolean((data as any).exceededTransferLimit);
+ return {status:"OK" as const,source,layerId:layer.id,layerName:layer.name,
+   datasetUrl:`https://portal.csdi.gov.hk/csdi-webpage/dataset/${HK_CSDI_SOURCES[source].datasetId}`,
+   requestUrl:url.toString(),routeId:args.routeId??null,routeNumber:args.routeNumber??null,routeSeq:args.routeSeq??null,
+   matchedRouteIds:ids,matchedRouteSequences:sequences,matchedRouteNames:names,
+   directionVerified:false,featureCount:count,mayHaveMore,nextOffset:mayHaveMore?offset+count:null,
+   warning:ids.length>1?"Multiple official ROUTE_ID values match; select the intended route before treating this as one route. ROUTE_SEQ does not automatically imply outbound/inbound.":"TD Bus Route polyline geometry; ROUTE_SEQ is the official sequence, not a verified O/I direction. Follow official attributes and do not snap to road centrelines.",
+   collection
+ };
+}
+export async function exportCsdiBusRoute(args:BusRouteQuery & {outputMode?:GeoOutputMode;mapEngine?:MapEngine}) {
+ if(!args.outputMode)return {
+  status:"NEEDS_OUTPUT_CHOICE" as const,
+  question:"想取得 GeoJSON 路線檔案、互動地圖，定 Python 圖片？",
+  choices:["geojson","interactive_map","python_image"]
+ };
+ const query=await fetchCsdiBusRoute(args);
+ if(!query.featureCount)throw new Error("CSDI_BUS_ROUTE_NOT_FOUND: no matching official route polyline");
+ if(query.matchedRouteIds.length>1)throw new Error("CSDI_BUS_ROUTE_AMBIGUOUS: multiple ROUTE_ID values match; choose a unique routeId to export");
+ const artifacts=await renderGeoArtifacts({layers:[query.collection],bounds:geoBounds([query.collection] as any),
+  outputMode:args.outputMode,mapEngine:args.mapEngine});
+ const provenanceFile=join(dirname(artifacts.artifactPath),"source.json");
+ await writeFile(provenanceFile,JSON.stringify({
+  source:"Transport Department / Hong Kong CSDI Bus Route",
+  datasetUrl:query.datasetUrl,requestUrl:query.requestUrl,layerId:query.layerId,
+  routeId:query.matchedRouteIds,routeSeq:query.matchedRouteSequences,
+  crs:"EPSG:4326",featureCount:query.featureCount,mayHaveMore:query.mayHaveMore,
+  directionVerified:false,warning:query.warning
+ },null,2),{mode:0o600});
+ return {status:artifacts.status,officialSource:query.datasetUrl,layerId:query.layerId,
+   matchedRouteIds:query.matchedRouteIds,matchedRouteSequences:query.matchedRouteSequences,
+   featureCount:query.featureCount,mayHaveMore:query.mayHaveMore,nextOffset:query.nextOffset,
+   directionVerified:false,warning:query.warning,provenanceFile,...artifacts};
 }

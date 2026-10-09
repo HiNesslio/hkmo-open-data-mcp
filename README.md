@@ -8,7 +8,7 @@
 
 - **查找資料**：例如香港巴士到站時間、澳門停車場空位、天氣或人口資料。
 - **製作網站及 App**：讓 AI 找到合適的官方資料，協助你製作小工具、圖表及應用程式。
-- **製作地圖**：澳門可解析官方地圖檔案；香港可接入 CSDI 官方道路形狀，輸出 GeoJSON、互動地圖或圖片。
+- **製作地圖**：香港可直接取得官方巴士路線彎線及道路形狀；澳門可解析官方地圖檔案，輸出互動地圖或圖片。
 - **減少錯誤**：優先核對官方來源；找不到符合要求的資料，就直接告訴你，不會用相似資料冒充。
 
 ## 怎樣安裝？
@@ -29,6 +29,8 @@ https://github.com/HiNesslio/hkmo-open-data-mcp
 > 幫我找香港巴士到站資料，協助製作一個簡單網頁。
 
 > 幫我把澳門政府的巴士路線地圖資料做成互動地圖。
+
+> 幫我取得香港 26 號巴士的行車路線，製作有彎線的互動地圖。
 
 > 幫我取得香港道路形狀，製作中環附近的互動地圖。
 
@@ -53,7 +55,7 @@ npm run build
 
 **Help your AI find and use Hong Kong and Macao government open data with a simple request.**
 
-This free, open-source **AI Skill + local MCP** helps you discover official data, read supported datasets, build small apps and turn verified government map data into interactive maps or images, including Hong Kong CSDI road geometry. It checks sources rather than inventing missing information.
+This free, open-source **AI Skill + local MCP** helps you discover official data, read supported datasets, build small apps and turn verified government map data into interactive maps or images, including Hong Kong's official bus route polylines and road geometry. It checks sources rather than inventing missing information.
 
 **Install with an AI agent** that supports local MCP and Skill setup:
 
