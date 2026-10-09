@@ -74,6 +74,38 @@ https://github.com/HiNesslio/hkmo-open-data-mcp
 
 ## v0.3：AI 可以解析 Shapefile ZIP，並輸出地圖
 
+### v0.3.1：澳門 Macao Grid 大地基準轉換修正
+
+**Shapefile 讀得出來，不代表點位放得準。** 澳門部分官方 `.prj` 寫成 `Macau_Grid` / `D_Macau`，但缺少 `TOWGS84` 等 datum shift 參數。單靠 .prj 使用一般自動轉換，可能退化成 ballpark geographic offset，產生約百米級偏移。
+
+新版會先核對原始 datum、International 1924 橢球、Transverse Mercator 與 Macao Grid 投影參數；**只有完全匹配**，先用 **EPSG:8433（Macao 1920 / Macao Grid）** 作來源，選用 **EPSG:8438（Macao 1920 to WGS 84 (1)，Molodensky–Badekas，標示精度約 1 米）** 轉換至 EPSG:4326。
+
+- `pyproj` 使用 `always_xy=True`、`allow_ballpark=False`，並明確檢查所選 datum operation。
+- 轉換資料連同 `sourceCrs`、`targetCrs`、`operation`、`operationEpsg`、`accuracyMeters`、`ballpark` 回傳，避免靜默猜測。
+- 其他地區／不符合 EPSG:8433 定義嘅投影**不會被強行當作澳門格網**；如無可核實轉換便明確報錯。
+- GeoJSON、互動地圖、GeoPandas 繪圖，都會共用**完成大地基準轉換後**嘅 WGS84 座標。
+
+**Shapefile ZIP 功能額外需要 Python 套件**（Node.js MCP 本身仍只需原有 npm 安裝）：
+
+```bash
+python3 -m pip install pyproj pyshp
+npm install
+npm run build
+npm run check
+```
+
+若需要直接生成 GeoPandas PNG，再安裝：
+
+```bash
+python3 -m pip install geopandas matplotlib
+```
+
+如 Python 執行檔非 `python3`，可設定環境變數 `HKMO_PYTHON_BIN`。缺少轉換套件時會報錯，**不會回退到錯誤嘅 JavaScript ballpark 座標**。
+
+參考：[EPSG:8433](https://epsg.io/8433) · [EPSG:8438](https://epsg.io/8438) · [pyproj Transformer](https://pyproj4.github.io/pyproj/stable/api/transformer.html)
+
+
+
 當你要求 AI 使用政府公開地理資料（例如巴士站、道路、公共設施），如果官方提供的是 Shapefile ZIP，AI 會先問你：
 
 **「想要哪種輸出？」**

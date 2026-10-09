@@ -2,7 +2,8 @@ import { readFile, realpath, mkdir, mkdtemp, writeFile, stat } from "node:fs/pro
 import { join, resolve, basename, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
-import shp from "shpjs";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { inspectDataset, boundRequest } from "./access.js";
 import type { Region } from "./types.js";
 
@@ -79,15 +80,45 @@ export function geoBounds(collections:FeatureCollection[]) {
  if(!Number.isFinite(bbox[0]))reject("EMPTY_GEOMETRY","No valid geometries found");
  return bbox as [number,number,number,number];
 }
+type TransformInfo={layer:string;sourceCrs:string;targetCrs:string;operation:string;operationEpsg:string|null;accuracyMeters:number;ballpark:boolean};
+async function transformZipWithPyproj(zip:Uint8Array,declaredCrs?:string):Promise<{layers:FeatureCollection[];transformations:TransformInfo[]}> {
+ const python=process.env.HKMO_PYTHON_BIN??"python3";
+ const script=join(dirname(fileURLToPath(import.meta.url)),"geo-transform.py");
+ return new Promise((resolve,reject)=>{
+   const child=spawn(python,[script,declaredCrs??""],{stdio:["pipe","pipe","pipe"]});
+   const chunks:Buffer[]=[];let received=0,errors="";
+   let completed=false;
+   const finish=(err?:Error,result?:{layers:FeatureCollection[];transformations:TransformInfo[]})=>{
+     if(completed)return;completed=true;clearTimeout(timer);
+     if(err)reject(err);else resolve(result!);
+   };
+   const timer=setTimeout(()=>{child.kill("SIGKILL");finish(new Error("GEO_TRANSFORM_TIMEOUT: Python CRS conversion exceeded 40 seconds"));},40_000);
+   child.on("error",(e)=>finish(new Error("PYTHON_DEPENDENCY_REQUIRED: Python 3 with pyproj and pyshp is required ("+e.message+")")));
+   child.stdout.on("data",(part:Buffer)=>{
+     received+=part.byteLength;
+     if(received>40_000_000){child.kill("SIGKILL");finish(new Error("GEO_OUTPUT_LIMIT: GeoJSON conversion exceeds 40 MB"));return;}
+     chunks.push(Buffer.from(part));
+   });
+   child.stderr.on("data",(part:Buffer)=>{errors+=part.toString("utf8").slice(0,2000);errors=errors.slice(-2500);});
+   child.stdin.on("error",()=>{/* child exit is handled by close */});
+   child.stdin.end(Buffer.from(zip));
+   child.on("close",(code)=>{
+     if(completed)return;
+     if(code!==0){finish(new Error("GEO_TRANSFORM_FAILED: "+(errors.trim()||"pyproj conversion exited "+code)));return;}
+     try{
+       const parsed=JSON.parse(Buffer.concat(chunks).toString("utf8"));
+       if(!Array.isArray(parsed.layers)||!Array.isArray(parsed.transformations)||parsed.layers.length!==parsed.transformations.length)throw new Error("Malformed pyproj result");
+       if(parsed.transformations.some((x:TransformInfo)=>x.ballpark))throw new Error("Ballpark datum shift is forbidden");
+       finish(undefined,parsed);
+     }catch(e){finish(new Error("GEO_TRANSFORM_INVALID: "+(e instanceof Error?e.message:String(e))));}
+   });
+ });
+}
+
 export async function parseShapefileZip(zip:Uint8Array,declaredCrs?:string) {
  const info=inspectShapefileArchive(zip,declaredCrs);
- const parsed=await shp(Buffer.from(zip));
- const raw=Array.isArray(parsed)?parsed:[parsed];
- const layers:FeatureCollection[]=raw.map((item:any,i)=>({
-   type:"FeatureCollection",
-   fileName:String(item.fileName??info.layers[i]?.name??`layer_${i+1}`).slice(0,120),
-   features:Array.isArray(item.features)?item.features:[]
- }));
+ const converted=await transformZipWithPyproj(zip,declaredCrs);
+ const layers=converted.layers;
  let total=0;
  for(const layer of layers){
    total+=layer.features.length;
@@ -97,7 +128,7 @@ export async function parseShapefileZip(zip:Uint8Array,declaredCrs?:string) {
    }
  }
  if(!total)reject("EMPTY_GEOMETRY","No Shapefile features found");
- return {info,layers,bounds:geoBounds(layers),featureCount:total};
+ return {info,layers,transformations:converted.transformations,bounds:geoBounds(layers),featureCount:total};
 }
 async function sourceZip(args:{region:Region;datasetId:string;resourceId?:number;inputFile?:string}) {
  if(args.inputFile){
@@ -119,7 +150,9 @@ async function sourceZip(args:{region:Region;datasetId:string;resourceId?:number
 }
 export async function inspectGeoZip(args:{region:Region;datasetId:string;resourceId?:number;inputFile?:string;declaredCrs?:string}) {
  const {bytes,dataset,source}=await sourceZip(args);
- return {status:"OK",datasetId:dataset.id,officialSource:dataset.detailUrl,zipSource:source,...inspectShapefileArchive(bytes,args.declaredCrs)};
+ const parsed=await parseShapefileZip(bytes,args.declaredCrs);
+ return {status:"OK",datasetId:dataset.id,officialSource:dataset.detailUrl,zipSource:source,...parsed.info,
+  transformations:parsed.transformations,featureCount:parsed.featureCount,bounds:parsed.bounds};
 }
 const pythonScript=`#!/usr/bin/env python3
 """Render generated WGS84 GeoJSON with GeoPandas. Requires geopandas, matplotlib."""
@@ -248,6 +281,6 @@ export async function exportShapefile(args:{region:Region;datasetId:string;resou
  }
  return {status,outputMode:args.outputMode,mapEngine:args.outputMode==="interactive_map"?(args.mapEngine??"maplibre_html"):undefined,
    datasetId:dataset.id,officialSource:dataset.detailUrl,inputSource:source,
-   layerNames:parsed.layers.map(l=>l.fileName),featureCount:parsed.featureCount,bounds:parsed.bounds,
+   layerNames:parsed.layers.map(l=>l.fileName),featureCount:parsed.featureCount,bounds:parsed.bounds,transformations:parsed.transformations,
    geojsonFiles:outputs,artifactPath:resultPath??outputs[0],note};
 }

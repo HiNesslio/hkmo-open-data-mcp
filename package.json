@@ -1,6 +1,6 @@
 {
   "name": "hkmo-open-data-mcp",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Zero-hosting Skill + local MCP for strict access to Hong Kong and Macao government open data.",
   "type": "module",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "hkmo-open-data-mcp": "dist/src/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node -e \"require('node:fs').copyFileSync('src/geo-transform.py','dist/src/geo-transform.py')\"",
     "start": "node dist/src/index.js",
     "dev": "tsx src/index.ts",
     "test": "node --test dist/test/*.test.js",
@@ -22,8 +22,7 @@
     "@modelcontextprotocol/server": "^2.3.1",
     "zod": "^4.1.11",
     "fast-xml-parser": "^5.11.2",
-    "exceljs": "^4.4.0",
-    "shpjs": "^6.2.0"
+    "exceljs": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.16.0",

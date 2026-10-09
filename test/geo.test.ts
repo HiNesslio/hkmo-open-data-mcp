@@ -125,3 +125,28 @@ test("Python image mode never claims a PNG when GeoPandas cannot start",async()=
    await rm(folder,{force:true,recursive:true});
  }
 });
+
+const sparseMacaoGridWkt="PROJCS[\"Macau_Grid\",GEOGCS[\"GCS_Macau\",DATUM[\"D_Macau\",SPHEROID[\"International_1924\",6378388.0,297.0]],PRIMEM[\"Greenwich\",0.0],UNIT[\"Degree\",0.0174532925199433]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"False_Easting\",20000.0],PARAMETER[\"False_Northing\",20000.0],PARAMETER[\"Central_Meridian\",113.536469444444],PARAMETER[\"Scale_Factor\",1.0],PARAMETER[\"Latitude_Of_Origin\",22.2123972222222],UNIT[\"Meter\",1.0]]";
+function sparseMacaoGridZip() {
+ return archive({
+  "macao_road.shp":shpPoint(21086.200383349347,18760.370077367555),
+  "macao_road.dbf":dbfPoint(),
+  "macao_road.prj":Buffer.from(sparseMacaoGridWkt)
+ });
+}
+test("Macao D_Macau without TOWGS84 uses EPSG:8433 -> EPSG:8438 transformation",async()=>{
+ const converted=await parseShapefileZip(sparseMacaoGridZip());
+ assert.equal(converted.transformations[0].sourceCrs,"EPSG:8433");
+ assert.equal(converted.transformations[0].operationEpsg,"EPSG:8438");
+ assert.equal(converted.transformations[0].ballpark,false);
+ assert.ok(converted.transformations[0].accuracyMeters<=1.1);
+ const [lon,lat]=converted.layers[0].features[0].geometry.coordinates;
+ assert.ok(Math.abs(lon-113.55)<0.00001,`longitude ${lon} is offset`);
+ assert.ok(Math.abs(lat-22.20)<0.00001,`latitude ${lat} is offset`);
+});
+test("false Macau Grid fingerprint does not trigger automatic EPSG:8433 override",async()=>{
+ const altered=sparseMacaoGridWkt.replace('PARAMETER["False_Easting",20000.0]','PARAMETER["False_Easting",30000.0]');
+ const file=archive({"macao_road.shp":shpPoint(21086.200383349347,18760.370077367555),
+   "macao_road.dbf":dbfPoint(),"macao_road.prj":Buffer.from(altered)});
+ await assert.rejects(()=>parseShapefileZip(file),/DATUM_TRANSFORM_UNAVAILABLE|GEO_TRANSFORM_FAILED/);
+});

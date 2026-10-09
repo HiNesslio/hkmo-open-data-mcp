@@ -58,3 +58,13 @@ The MCP tool `export_shapefile` without `outputMode` returns `NEEDS_OUTPUT_CHOIC
 - ZIP source: use official verified resource ID, or the user can first manually download the official ZIP to `HKMO_GEO_INPUT_DIR` and provide its file name (`inputFile`). NEVER invent a government download URL or token.
 - Projection: require .prj. Without .prj, require the user to explicitly confirm EPSG:4326; do not assume or guess Macao Grid, HK1980 Grid or GCJ-02. A declared non-WGS84 CRS without a proper .prj must fail.
 - Respect safety limits, feature bounds and official attribution; clearly state that artifacts live on the local MCP host. Do not claim the host client has automatically attached those files.
+
+## Macao Grid datum shift verification (v0.3.1)
+
+Macao government Shapefile ZIPs may use `Macau_Grid / D_Macau` WKT without datum transformation parameters. **Never treat a successful Shapefile read or plausible longitude/latitude as evidence of a correct WGS84 transformation.**
+
+For a verified matching Macao 1920 / Macao Grid source, the local geo conversion helper uses Python `pyproj` and `pyshp`, replacing that incomplete source datum with **EPSG:8433**, and requires the **Macao 1920 to WGS 84 (1)** transformation **EPSG:8438** (Molodensky-Badekas, accuracy approximately 1m). It selects with `always_xy=True`, `allow_ballpark=False` and checks the actual operation description and accuracy before exporting.
+
+**Always inspect `transformations[]` in the tool result** and cite both source and target CRS. If `DATUM_TRANSFORM_UNAVAILABLE` or `PYTHON_DEPENDENCY_REQUIRED` appears, stop; do not output shifted GeoJSON or maps. A nonmatching or unfamiliar projection may NEVER be coerced to EPSG:8433 merely because the dataset is from Macao.
+
+Install the optional local Python runtime: `python3 -m pip install pyproj pyshp`. GeoPandas and matplotlib remain additional dependencies only for generating a PNG image.
