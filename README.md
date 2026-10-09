@@ -67,4 +67,6 @@ Verify the installation when finished.
 
 For manual setup, use Node.js 20+, run `npm install && npm run build`, connect `dist/src/index.js` to your MCP client, and load [skill/SKILL.md](skill/SKILL.md). Geospatial conversion requires additional Python packages.
 
+**Publishing:** [MCP Registry / Smithery / MCP.so](docs/PUBLISHING.md)
+
 **License:** [MIT](LICENSE)
