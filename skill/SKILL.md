@@ -28,7 +28,7 @@ Use this skill when a user asks to find, inspect, or retrieve Hong Kong or Macao
 6. If Macao returns `DISCOVERY_LIMITED`, search `data.gov.mo` using the host application's web capability if available, then pass only an official `data.gov.mo`/`api.data.gov.mo` URL to `inspect_official_url`. If no official exact match is found, return not found.
 7. Prefer `query_dataset(region,datasetId,resourceId,...)`, allowing the MCP to validate the selected official resource, read bounded JSON/XML/CSV/XLSX, and attach provenance. Do not invent parameter names or values; list resources first.
 8. The legacy `call_official_api` also requires region, datasetId and resourceId, and the supplied URL/method must match the bound resource exactly. NEVER supply custom Authorization for Macao: the MCP injects an ephemeral official APPCODE itself.
-9. When XLS, generic ZIP, Shapefile or an unverifiable download is encountered, report an explicit unsupported/unavailable state; do not fabricate a parse result.
+9. JSON, XML, CSV and XLSX use query_dataset. Shapefile ZIP requires the dedicated inspect_shapefile_zip / export_shapefile tools. Generic ZIP and legacy XLS remain unsupported. Do not fabricate a parse result.
 10. A network outage or authentication failure is not evidence that a dataset is nonexistent.
 
 ## Example
@@ -40,3 +40,21 @@ Correct response: `你想查香港定澳門嘅資料？`
 User: `澳門，實時空位`
 
 Then search specifically for Macao **real-time parking vacancy**. A dataset containing only car-park locations, tariffs or opening hours is not acceptable.
+
+## Geospatial/Shapefile ZIP workflow (v0.3)
+
+When a user wants to use a HK/MO government Shapefile ZIP, first verify region and the exact official dataset as usual.
+
+**Before generating the deliverable, ask a single question if the user has not already specified their preferred output:**
+
+「你需要邊種輸出？① GeoJSON 原始檔案；② 可互動地圖（MapLibre HTML 或 React／Mapbox）；③ Python GeoPandas 靜態圖片（PNG）？」
+
+The MCP tool `export_shapefile` without `outputMode` returns `NEEDS_OUTPUT_CHOICE`; ask the user using its choices and stop. Do NOT choose an arbitrary output type based on popularity. Do not render an image as a substitute for GeoJSON or a real interactive map.
+
+- `inspect_shapefile_zip` inspects safe ZIP metadata, layers, required .shp/.dbf and CRS status.
+- `export_shapefile`: pass `outputMode: "geojson" | "interactive_map" | "python_image"` only after the user has chosen.
+- For an interactive map, `mapEngine: "maplibre_html"` outputs a standalone HTML file and bundled geometry data; `"react_mapbox"` outputs React/Mapbox component source code plus GeoJSON files. React output is NOT a hosted website. Mapbox requires the user's own token.
+- For a Python image, generate the GeoPandas Python script; only claim that a PNG exists when the tool reports successful execution.
+- ZIP source: use official verified resource ID, or the user can first manually download the official ZIP to `HKMO_GEO_INPUT_DIR` and provide its file name (`inputFile`). NEVER invent a government download URL or token.
+- Projection: require .prj. Without .prj, require the user to explicitly confirm EPSG:4326; do not assume or guess Macao Grid, HK1980 Grid or GCJ-02. A declared non-WGS84 CRS without a proper .prj must fail.
+- Respect safety limits, feature bounds and official attribution; clearly state that artifacts live on the local MCP host. Do not claim the host client has automatically attached those files.

@@ -10,6 +10,7 @@ import { assertOfficialUrl, safeFetch } from "./http.js";
 import { datasetIdFromMacaoDetailUrl, inspectMacaoDatasetDetail, requireVerifiedMacaoDataset } from "./macao-auth.js";
 import { inspectDataset, boundRequest, bindResource } from "./access.js";
 import { parseData } from "./data-reader.js";
+import { inspectGeoZip, exportShapefile } from "./geo.js";
 import type { Region, SearchResult } from "./types.js";
 
 const regionSchema=z.enum(["HK","MO"]);
@@ -32,7 +33,7 @@ const protect=async(f:()=>Promise<Record<string,unknown>>) => {
 };
 
 serveStdio(()=>{
-  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.2.0",description:"Verified HK/MO government open-data discovery, safe API access and structured reading."});
+  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.3.0",description:"Verified HK/MO government open data, secure API access, structured reading and Shapefile ZIP exports."});
 
   server.registerTool("resolve_region",{
     description:"Determine Hong Kong or Macao; when ambiguous ask instead of guessing.",
@@ -99,6 +100,29 @@ serveStdio(()=>{
     const data=await parseData(r,{limit:args.limit,offset:args.offset,fields:args.fields,format:resource.format});
     return {status:"OK",datasetId:dataset.id,datasetTitle:dataset.title,officialSource:dataset.detailUrl,updateFrequency:dataset.updateFrequency,resourceId:resource.id,...data};
   }));
+
+
+  server.registerTool("inspect_shapefile_zip",{
+    description:"Inspect a verified government Shapefile ZIP: validate archive safety, layers, .dbf/.prj presence, projection declaration and sizes. For local ZIP, set HKMO_GEO_INPUT_DIR and pass inputFile (filename only).",
+    inputSchema:z.object({
+      region:regionSchema,datasetId:z.string().min(1).max(160),
+      resourceId:z.number().int().min(0).default(0),
+      inputFile:z.string().max(180).optional(),
+      declaredCrs:z.enum(["EPSG:4326"]).optional()
+    }),outputSchema:genericOutput
+  },async(args)=>protect(async()=>await inspectGeoZip(args)));
+
+  server.registerTool("export_shapefile",{
+    description:"Convert a verified Shapefile ZIP to real local artifacts. IMPORTANT: if the user has not chosen output, call without outputMode and ASK the user to choose raw GeoJSON, interactive map (MapLibre HTML or React Mapbox), or Python GeoPandas PNG. Output paths are local to the MCP host. Requires .prj, or explicit EPSG:4326 for missing .prj. React Mapbox needs user token. No invented government download URLs.",
+    inputSchema:z.object({
+      region:regionSchema,datasetId:z.string().min(1).max(160),
+      resourceId:z.number().int().min(0).default(0),
+      inputFile:z.string().max(180).optional(),
+      declaredCrs:z.enum(["EPSG:4326"]).optional(),
+      outputMode:z.enum(["geojson","interactive_map","python_image"]).optional(),
+      mapEngine:z.enum(["maplibre_html","react_mapbox"]).optional()
+    }),outputSchema:genericOutput
+  },async(args)=>protect(async()=>await exportShapefile(args)));
 
   server.registerTool("call_official_api",{
     description:"Legacy compatibility. Only registered resources of a verified dataset can be called; user Authorization, arbitrary URLs, methods and unverified datasets are blocked. Prefer query_dataset.",

@@ -126,11 +126,11 @@ export async function boundRequest(args:{region:Region;datasetId:string;resource
    headers.set("authorization",`APPCODE ${auth.appCode}`);
  }
  const {safeFetchBytes}=await import("./http.js");
- const result=await safeFetchBytes(url,{method:resource.method,headers,body:args.body},Math.min(args.maxBytes??2_000_000,5_000_000));
+ const result=await safeFetchBytes(url,{method:resource.method,headers,body:args.body},Math.min(args.maxBytes??2_000_000,12_000_000));
  if([400,401,403].includes(result.status) && headers.has("authorization") && resource.method==="GET") {
    const refreshed=await resolveMacaoApiAccess(args.datasetId,url,true);
    headers.set("authorization",`APPCODE ${refreshed.appCode}`);
-   return {dataset,resource,result:await safeFetchBytes(url,{method:resource.method,headers},Math.min(args.maxBytes??2_000_000,5_000_000))};
+   return {dataset,resource,result:await safeFetchBytes(url,{method:resource.method,headers},Math.min(args.maxBytes??2_000_000,12_000_000))};
  }
  return {dataset,resource,result};
 }

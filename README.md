@@ -72,6 +72,53 @@ https://github.com/HiNesslio/hkmo-open-data-mcp
 
 ---
 
+## v0.3：AI 可以解析 Shapefile ZIP，並輸出地圖
+
+當你要求 AI 使用政府公開地理資料（例如巴士站、道路、公共設施），如果官方提供的是 Shapefile ZIP，AI 會先問你：
+
+**「想要哪種輸出？」**
+
+1. **GeoJSON 原始檔案**：將 ZIP 內每個 Shapefile layer 轉成獨立 `.geojson`，適合自己開發、分析或匯入 GIS。
+2. **互動地圖**：預設輸出可直接在瀏覽器開啟的 **MapLibre HTML**（免 Mapbox Token）；亦可選 **React + Mapbox** TSX 組件，用於現有網站。
+3. **Python GeoPandas 圖片**：輸出 `render_geopandas.py`，並在本機有 Python、GeoPandas、Matplotlib 時自動生成 `map.png`。
+
+### 一句話用法
+
+> 幫我將澳門巴士路線 Shapefile ZIP 轉成互動地圖。
+
+如果你未指明輸出格式，`export_shapefile` 會先回傳 **NEEDS_OUTPUT_CHOICE**，要求 AI 反問，唔會直接假定你要邊種。
+
+### 兩個新 Tool
+
+- `inspect_shapefile_zip`：檢查 ZIP 內有幾層 Shapefile、`.shp/.dbf/.prj` 是否齊全、大小是否安全。
+- `export_shapefile`：選擇 `geojson`、`interactive_map` 或 `python_image`，輸出真正本機檔案路徑。
+
+### 官方 ZIP 或本機 ZIP
+
+如果 dataset 的 `list_resources` 已有可核實 ZIP URL，可傳 `region`、`datasetId`、`resourceId`，由 MCP 安全下載。
+
+如果澳門 dataset 只提供官方 Detail 頁，但未能取得可核實的檔案下載 URL，可先**由官方網站手動下載 ZIP**，放入指定資料夾：
+
+```bash
+# macOS / Linux 示範
+mkdir -p "$HOME/hkmo-geo-input"
+export HKMO_GEO_INPUT_DIR="$HOME/hkmo-geo-input"
+# 將官網下載的 .zip 放入上述資料夾，再開始 MCP。
+```
+
+之後只需傳 ZIP **檔名**（例如 `bus_routes.zip`），MCP 唔會讀取資料夾以外嘅路徑或猜下載 token。需同時指定 verified `datasetId`，確保政府來源清楚。輸出預設放在本機暫存目錄 `hkmo-open-data-exports`，亦可用 `HKMO_GEO_OUTPUT_DIR` 指定位置。
+
+### 地圖及座標注意事項
+
+- **必須有可信座標系統**：ZIP 需附 `.prj`；否則只有用戶能明確確認資料本來就係 `EPSG:4326`，先可以加 `declaredCrs: "EPSG:4326"`。唔會猜澳門／香港本地投影。
+- 輸出 GeoJSON 會檢查 WGS84 經緯度範圍；轉換唔可靠就拒絕，而唔係放錯巴士站／道路位置。
+- ZIP 最大 12 MB，解壓後合計最多 64 MB，最多 100,000 features；防止壓縮炸彈、路徑穿越或異常文件。
+- MapLibre HTML 的地圖庫及 OpenStreetMap 底圖需要上網；React + Mapbox 需要在 Vite 專案安裝 `mapbox-gl`，並自行設定 `VITE_MAPBOX_TOKEN`，唔會將 token 寫入成果。
+- GeoPandas 圖片需要本機安裝：`python -m pip install geopandas matplotlib`。如未安裝，MCP 仍會輸出可執行腳本，並明確回覆未能生成 PNG。
+- 產出檔案位於 **MCP 運行的本機**，唔會自動上傳雲端或自動展示成 ChatGPT 附件；Agent 可以開啟或搬運成果。
+
+---
+
 ## v0.2：AI 可以直接讀取資料
 
 新版不只可以找政府 dataset，仲會幫你解析常用格式，回傳**有欄位名稱、列數限制、官方來源**嘅結果。
@@ -89,7 +136,7 @@ AI 可以按以下次序使用 MCP：
 
 **新增安全限制：** `call_official_api` 保留作舊介面，但必須傳入 `region`、`datasetId`、`resourceId` 同與該資源完全相同嘅 URL／方法。任意官方 URL、私自指定 Authorization、未驗證 dataset、未列明參數都不能直接調用。建議新用戶使用 `query_dataset`。
 
-**檔案支援：** JSON、XML、CSV、XLSX（XLS、Shapefile、ZIP 暫不直接解析）。資料請求和試算表有大小限制；預設只回傳 20 筆，最多 50 筆，避免把整份大型檔案灌進 AI。澳門下載型 dataset 若未提供可核實嘅實際下載連結，只會列出資料集，唔會猜 URL。
+**一般表格讀取：** JSON、XML、CSV、XLSX（Shapefile ZIP 請使用 v0.3 新增的專用工具；一般 ZIP／舊 XLS 不支援）。資料請求和試算表有大小限制；預設只回傳 20 筆，最多 50 筆，避免把整份大型檔案灌進 AI。澳門下載型 dataset 若未提供可核實嘅實際下載連結，只會列出資料集，唔會猜 URL。
 
 > 這是 open-data access 工具，唔係全能資料爬蟲。香港／澳門官方 metadata 變動、來源失效或部分非 `gov.hk`／`gov.mo` 嘅外部資源可能無法直接使用。無法核實時會明確失敗，唔會用其他數據代替。
 
@@ -482,6 +529,20 @@ npm run e2e
 ```
 
 Live E2E covers Hong Kong and Macao official endpoints, including Macao runtime APPCODE → live car-park API access.
+
+## v0.3 Shapefile ZIP → GeoJSON / interactive map / Python image
+
+Shapefile ZIP is supported through two separate MCP tools: `inspect_shapefile_zip` and `export_shapefile`. The export tool **asks the user to choose** when `outputMode` is omitted, instead of producing an arbitrary artifact.
+
+- `geojson`: WGS84 `.geojson` files, one per layer.
+- `interactive_map`: standalone MapLibre HTML (uses online JS/OSM tiles) or React + Mapbox TSX + GeoJSON files (user-supplied Mapbox token).
+- `python_image`: GeoPandas/Matplotlib `render_geopandas.py` script and a PNG when those optional Python packages are installed.
+
+Files are generated on the **local MCP host**, not remotely uploaded. Set `HKMO_GEO_INPUT_DIR` for a manually downloaded official ZIP (pass only `inputFile`, not an unrestricted path). `HKMO_GEO_OUTPUT_DIR` optionally sets the artifact directory.
+
+ZIP archives require matching `.shp/.dbf` layers and a `.prj`, unless the user explicitly confirms `EPSG:4326`. Projected coordinates are transformed by Shapefile.js to WGS84, and invalid longitude/latitude values are rejected. Archive size, compression ratio and feature limits apply.
+
+For local rendering install `geopandas` and `matplotlib`; React/Mapbox needs `mapbox-gl` and `VITE_MAPBOX_TOKEN`.
 
 ## v0.2 structured data access
 
