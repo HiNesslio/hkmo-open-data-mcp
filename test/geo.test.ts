@@ -106,3 +106,22 @@ test("local ZIP export writes GeoJSON, interactive HTML and React Mapbox source"
    await rm(folder,{force:true,recursive:true});
  }
 });
+
+test("Python image mode never claims a PNG when GeoPandas cannot start",async()=>{
+ const folder=await mkdtemp(join(tmpdir(),"hkmo-python-test-"));
+ const oldInput=process.env.HKMO_GEO_INPUT_DIR,oldOutput=process.env.HKMO_GEO_OUTPUT_DIR,oldPython=process.env.HKMO_PYTHON_BIN;
+ try{
+   process.env.HKMO_GEO_INPUT_DIR=folder;process.env.HKMO_GEO_OUTPUT_DIR=folder;
+   process.env.HKMO_PYTHON_BIN="hkmo-no-such-python-binary";
+   await writeFile(join(folder,"香港巴士路線.zip"),sample());
+   const r=await exportShapefile({region:"MO",datasetId:"e7b2e84d-3333-42f0-b676-64ce95306f0d",inputFile:"香港巴士路線.zip",outputMode:"python_image"});
+   assert.equal(r.status,"DEPENDENCY_REQUIRED");
+   if(!("artifactPath" in r))throw new Error("Missing render script");
+   assert.match(await readFile(r.artifactPath,"utf8"),/import geopandas as gpd/);
+ }finally{
+   if(oldInput===undefined)delete process.env.HKMO_GEO_INPUT_DIR;else process.env.HKMO_GEO_INPUT_DIR=oldInput;
+   if(oldOutput===undefined)delete process.env.HKMO_GEO_OUTPUT_DIR;else process.env.HKMO_GEO_OUTPUT_DIR=oldOutput;
+   if(oldPython===undefined)delete process.env.HKMO_PYTHON_BIN;else process.env.HKMO_PYTHON_BIN=oldPython;
+   await rm(folder,{force:true,recursive:true});
+ }
+});

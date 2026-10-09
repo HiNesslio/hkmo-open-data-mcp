@@ -3,7 +3,7 @@ import { join, resolve, basename, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
 import shp from "shpjs";
-import { inspectDataset, boundRequest, type Resource } from "./access.js";
+import { inspectDataset, boundRequest } from "./access.js";
 import type { Region } from "./types.js";
 
 export type GeoOutputMode="geojson"|"interactive_map"|"python_image";
@@ -101,7 +101,7 @@ export async function parseShapefileZip(zip:Uint8Array,declaredCrs?:string) {
 }
 async function sourceZip(args:{region:Region;datasetId:string;resourceId?:number;inputFile?:string}) {
  if(args.inputFile){
-   if(!/^[a-zA-Z0-9_. -]+\.zip$/i.test(args.inputFile)||args.inputFile.includes(".."))reject("INVALID_FILE","Provide a ZIP filename only, no path");
+   if(!/\.zip$/i.test(args.inputFile)||args.inputFile.includes("..")||args.inputFile.includes("/")||args.inputFile.includes(String.fromCharCode(92))||[...args.inputFile].some(ch=>ch.charCodeAt(0)<32))reject("INVALID_FILE","Provide a ZIP filename only, no path");
    const inputRoot=process.env.HKMO_GEO_INPUT_DIR;
    if(!inputRoot)reject("INPUT_DIR_REQUIRED","Set HKMO_GEO_INPUT_DIR to the directory containing your government ZIP");
    const base=await realpath(inputRoot),path=await realpath(join(base,args.inputFile));
@@ -177,7 +177,10 @@ export default function GovernmentGeoMap() {
     if (!container.current) return;
     mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN ?? "";
     if (!mapboxgl.accessToken) throw new Error("Set VITE_MAPBOX_TOKEN to render Mapbox maps");
-    const map = new mapboxgl.Map({container: container.current, style: "mapbox://styles/mapbox/streets-v12", center:[113.55,22.20],zoom:11});
+    const bounds = GEO_BOUNDS;
+    const map = new mapboxgl.Map({container: container.current, style: "mapbox://styles/mapbox/streets-v12",
+       center:[(bounds[0]+bounds[2])/2,(bounds[1]+bounds[3])/2],zoom:11});
+    map.once("load",()=>map.fitBounds([[bounds[0],bounds[1]],[bounds[2],bounds[3]]],{padding:48,maxZoom:15}));
     map.on("load", async () => {
       const files = GEOJSON_FILES;
       for (let i = 0; i < files.length; i++) {
@@ -206,7 +209,7 @@ async function runGeoPandas(folder:string,files:string[]) {
  });
 }
 export async function exportShapefile(args:{region:Region;datasetId:string;resourceId?:number;inputFile?:string;declaredCrs?:string;outputMode?:GeoOutputMode;mapEngine?:MapEngine}) {
- if(!args.outputMode)return {status:"NEEDS_OUTPUT_CHOICE",question:"想用哪一種格式輸出？",choices:[
+ if(!args.outputMode)return {status:"NEEDS_OUTPUT_CHOICE" as const,question:"想用哪一種格式輸出？",choices:[
    {value:"geojson",label:"原始 GeoJSON 檔案"},
    {value:"interactive_map",label:"互動地圖（MapLibre HTML 或 React + Mapbox）"},
    {value:"python_image",label:"Python GeoPandas 靜態 PNG 圖片"}],
@@ -225,7 +228,7 @@ export async function exportShapefile(args:{region:Region;datasetId:string;resou
  let resultPath:string|undefined,status:"OK"|"DEPENDENCY_REQUIRED"="OK",note="";
  if(args.outputMode==="interactive_map"){
    if(args.mapEngine==="react_mapbox"){
-     const react=mapboxReact.replace("GEOJSON_FILES",JSON.stringify(files));
+     const react=mapboxReact.replace("GEOJSON_FILES",JSON.stringify(files)).replace("GEO_BOUNDS",JSON.stringify(parsed.bounds));
      resultPath=join(folder,"GovernmentGeoMap.tsx");
      await writeFile(resultPath,react,{mode:0o600});
      note="Copy the GeoJSON files to the React project's public/ folder. Install mapbox-gl and configure VITE_MAPBOX_TOKEN. This is a source artifact, not a running website.";
