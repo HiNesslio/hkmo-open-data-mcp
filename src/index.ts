@@ -34,7 +34,7 @@ const protect=async(f:()=>Promise<Record<string,unknown>>) => {
 };
 
 serveStdio(()=>{
-  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.5.0",description:"Verified HK/MO government open data, secure API access, structured reading and Shapefile ZIP exports."});
+  const server=new McpServer({name:"hkmo-open-data-mcp",version:"0.5.1",description:"Verified HK/MO government open data, secure API access, structured reading and Shapefile ZIP exports."});
 
   server.registerTool("resolve_region",{
     description:"Determine Hong Kong or Macao; when ambiguous ask instead of guessing.",

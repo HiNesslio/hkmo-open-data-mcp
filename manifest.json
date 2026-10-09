@@ -1,0 +1,32 @@
+{
+  "manifest_version": "0.3",
+  "name": "hkmo-open-data-mcp",
+  "display_name": "HK/MO Open Data",
+  "version": "0.5.1",
+  "description": "Access verified Hong Kong and Macao government open data, public transport and map geometry.",
+  "author": {
+    "name": "HiNesslio",
+    "url": "https://github.com/HiNesslio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HiNesslio/hkmo-open-data-mcp"
+  },
+  "homepage": "https://github.com/HiNesslio/hkmo-open-data-mcp",
+  "server": {
+    "type": "node",
+    "entry_point": "dist/src/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/src/index.js"
+      ],
+      "env": {}
+    }
+  },
+  "compatibility": {
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}

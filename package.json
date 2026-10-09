@@ -1,7 +1,7 @@
 {
   "name": "hkmo-open-data-mcp",
-  "version": "0.5.0",
-  "description": "Zero-hosting Skill + local MCP for strict access to Hong Kong and Macao government open data.",
+  "version": "0.5.1",
+  "description": "Find and read verified Hong Kong and Macao government open data, APIs and map geometry with a local MCP server.",
   "type": "module",
   "license": "MIT",
   "engines": {
@@ -16,7 +16,9 @@
     "dev": "tsx src/index.ts",
     "test": "node --test dist/test/*.test.js",
     "check": "npm run build && npm test",
-    "e2e": "npm run build && RUN_E2E=1 node --test dist/test/e2e.test.js"
+    "e2e": "npm run build && RUN_E2E=1 node --test dist/test/e2e.test.js",
+    "prepack": "npm run build",
+    "pack:mcpb": "npm run build && python3 scripts/build_mcpb.py"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.3.1",
@@ -28,5 +30,33 @@
     "@types/node": "^22.16.0",
     "tsx": "^4.20.6",
     "typescript": "^5.8.3"
+  },
+  "mcpName": "io.github.hinesslio/hkmo-open-data-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HiNesslio/hkmo-open-data-mcp.git"
+  },
+  "homepage": "https://github.com/HiNesslio/hkmo-open-data-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/HiNesslio/hkmo-open-data-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "hong-kong",
+    "macao",
+    "macau",
+    "government-open-data",
+    "csdi",
+    "geojson"
+  ],
+  "files": [
+    "dist/",
+    "skill/SKILL.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }
