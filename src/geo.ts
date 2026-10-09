@@ -10,7 +10,7 @@ import type { Region } from "./types.js";
 export type GeoOutputMode="geojson"|"interactive_map"|"python_image";
 export type MapEngine="maplibre_html"|"react_mapbox";
 type Feature={type:"Feature";geometry:any;properties:Record<string,unknown>|null;id?:string|number};
-type FeatureCollection={type:"FeatureCollection";features:Feature[];fileName?:string};
+export type FeatureCollection={type:"FeatureCollection";features:Feature[];fileName?:string};
 const MAX_ZIP=12_000_000,MAX_EXPANDED=64_000_000,MAX_FEATURES=100_000;
 function reject(code:string,detail:string):never {throw new Error(`${code}: ${detail}`);}
 function layerStem(name:string){return name.replace(/\\/g,"/").replace(/\.(shp|shx|dbf|prj|cpg)$/i,"").toLowerCase();}
@@ -249,38 +249,44 @@ export async function exportShapefile(args:{region:Region;datasetId:string;resou
    hint:"Please repeat this tool call with outputMode; for interactive_map you may choose mapEngine."};
  const {bytes,dataset,source}=await sourceZip(args);
  const parsed=await parseShapefileZip(bytes,args.declaredCrs);
+ const art=await renderGeoArtifacts({layers:parsed.layers,bounds:parsed.bounds,outputMode:args.outputMode,mapEngine:args.mapEngine});
+ return {status:art.status,outputMode:args.outputMode,mapEngine:args.outputMode==="interactive_map"?(args.mapEngine??"maplibre_html"):undefined,
+   datasetId:dataset.id,officialSource:dataset.detailUrl,inputSource:source,
+   layerNames:parsed.layers.map(l=>l.fileName),featureCount:parsed.featureCount,bounds:parsed.bounds,transformations:parsed.transformations,
+   geojsonFiles:art.geojsonFiles,artifactPath:art.artifactPath,note:art.note};
+}
+
+export async function renderGeoArtifacts(args:{layers:FeatureCollection[];bounds:[number,number,number,number];outputMode:GeoOutputMode;mapEngine?:MapEngine}) {
+ const {layers,bounds,outputMode,mapEngine}=args;
  const outputRoot=resolve(process.env.HKMO_GEO_OUTPUT_DIR??join(tmpdir(),"hkmo-open-data-exports"));
  await mkdir(outputRoot,{recursive:true,mode:0o700});
  const folder=await mkdtemp(join(outputRoot,"export-"));
  const files:string[]=[];
- for(let i=0;i<parsed.layers.length;i++){
+ for(let i=0;i<layers.length;i++){
    const name=`layer-${i+1}.geojson`,path=join(folder,name);
-   await writeFile(path,JSON.stringify(parsed.layers[i]),{mode:0o600});files.push(name);
+   await writeFile(path,JSON.stringify(layers[i]),{mode:0o600});files.push(name);
  }
  const outputs=files.map(name=>join(folder,name));
  let resultPath:string|undefined,status:"OK"|"DEPENDENCY_REQUIRED"="OK",note="";
- if(args.outputMode==="interactive_map"){
-   if(args.mapEngine==="react_mapbox"){
-     const react=mapboxReact.replace("GEOJSON_FILES",JSON.stringify(files)).replace("GEO_BOUNDS",JSON.stringify(parsed.bounds));
+ if(outputMode==="interactive_map"){
+   if(mapEngine==="react_mapbox"){
+     const react=mapboxReact.replace("GEOJSON_FILES",JSON.stringify(files)).replace("GEO_BOUNDS",JSON.stringify(bounds));
      resultPath=join(folder,"GovernmentGeoMap.tsx");
      await writeFile(resultPath,react,{mode:0o600});
      note="Copy the GeoJSON files to the React project's public/ folder. Install mapbox-gl and configure VITE_MAPBOX_TOKEN. This is a source artifact, not a running website.";
    }else{
-     const geoBytes=Buffer.byteLength(JSON.stringify(parsed.layers));
+     const geoBytes=Buffer.byteLength(JSON.stringify(layers));
      if(geoBytes>3_000_000)reject("MAP_PREVIEW_LIMIT","Interactive HTML embeds up to 3MB GeoJSON; use geojson output or smaller layers");
      resultPath=join(folder,"index.html");
-     await writeFile(resultPath,htmlMap(parsed.layers,parsed.bounds),{mode:0o600});
+     await writeFile(resultPath,htmlMap(layers,bounds),{mode:0o600});
      note="Open index.html in a browser with internet access (MapLibre JS and OSM tiles load online). No Mapbox token needed.";
    }
- } else if(args.outputMode==="python_image"){
+ } else if(outputMode==="python_image"){
    const script=join(folder,"render_geopandas.py");
    await writeFile(script,pythonScript,{mode:0o600});
    const run=await runGeoPandas(folder,files);
    if(run.success)resultPath=join(folder,"map.png");
    else {status="DEPENDENCY_REQUIRED";resultPath=script;note=`PNG not generated: ${run.error}. Run python render_geopandas.py --output map.png ${files.join(" ")} after installing geopandas matplotlib.`;}
  }
- return {status,outputMode:args.outputMode,mapEngine:args.outputMode==="interactive_map"?(args.mapEngine??"maplibre_html"):undefined,
-   datasetId:dataset.id,officialSource:dataset.detailUrl,inputSource:source,
-   layerNames:parsed.layers.map(l=>l.fileName),featureCount:parsed.featureCount,bounds:parsed.bounds,transformations:parsed.transformations,
-   geojsonFiles:outputs,artifactPath:resultPath??outputs[0],note};
+ return {status,geojsonFiles:outputs,artifactPath:resultPath??outputs[0],note};
 }

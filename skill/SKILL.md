@@ -68,3 +68,18 @@ For a verified matching Macao 1920 / Macao Grid source, the local geo conversion
 **Always inspect `transformations[]` in the tool result** and cite both source and target CRS. If `DATUM_TRANSFORM_UNAVAILABLE` or `PYTHON_DEPENDENCY_REQUIRED` appears, stop; do not output shifted GeoJSON or maps. A nonmatching or unfamiliar projection may NEVER be coerced to EPSG:8433 merely because the dataset is from Macao.
 
 Install the optional local Python runtime: `python3 -m pip install pyproj pyshp`. GeoPandas and matplotlib remain additional dependencies only for generating a PNG image.
+
+## Hong Kong official road geometry (CSDI)
+
+When users request Hong Kong road geometry, road networks, or non-straight spatial lines for a map, do not fabricate road curves by connecting point endpoints. Discover **Hong Kong CSDI** official spatial data separately from DATA.GOV.HK dataset data:
+- `inspect_csdi_layers` without a source lists the supported official CSDI sources.
+- `inspect_csdi_layers(source:"road_centreline")`: Lands Department Road Centreline, for visually accurate street centre lines **only** (source explicitly says approximate location/map labelling).
+- `inspect_csdi_layers(source:"road_network")`: Transport Department Road Network, for network geometry and direction/restriction attributes. Review selected layer fields and geometry type before relying on road topology.
+- Select the **published layer ID** found by inspect; never hard-code or guess its number.
+- Use `query_csdi_geometry` for a small GeoJSON line preview, or `export_csdi_geometry` with a Hong Kong WGS84 bounding box for a local GeoJSON, MapLibre/React-Mapbox interactive map, or Python GeoPandas image. If output is unspecified, ask the user which of those three formats they want.
+- CSDI is requested through its official ArcGIS REST FeatureServer, not its discontinued Data Query Service (DQS). Do not confuse a WMS raster map image with actual line geometry.
+- Every CSDI request is spatially bounded and returns a **limited page**, not the whole Hong Kong road network. `mayHaveMore` and `nextOffset` must be disclosed. Never claim that a single page is exhaustive.
+- The source GeoJSON from DATA.GOV.HK and the CSDI road geometry are **separate datasets**. Overlaying CSDI road lines is supported, but automatically matching bus routes to roads is NOT. Only join by verified shared IDs or a separately validated, quality-checked routing/map-matching process. Never choose a nearby road solely because it is nearest or looks plausible.
+- Both source and CSDI dataset links must appear in results. Preserve all original coordinates rather than replacing user data silently.
+- Hong Kong CSDI GeoJSON results are WGS84 longitude/latitude; reject metre-scale projected coordinates in GeoJSON.
+Official sources: https://portal.csdi.gov.hk/csdi-webpage/dataset/landsd_rcd_1637310758814_80061 and https://portal.csdi.gov.hk/csdi-webpage/dataset/td_rcd_1638949160594_2844
