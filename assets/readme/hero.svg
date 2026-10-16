@@ -1,40 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="378" viewBox="0 0 1200 378" role="img" aria-labelledby="title desc">
-  <title id="title">HK/MO Open Data — official Hong Kong and Macao public data</title>
-  <desc id="desc">Official Hong Kong and Macao government data is verified and prepared by AI as maps or structured results. The data flow is conceptual.</desc>
-  <rect width="1200" height="378" rx="24" fill="#F5F7F5"/>
-  <g id="name-and-promise" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans CJK TC, sans-serif">
-    <rect x="66" y="42" width="9" height="9" rx="4.5" fill="#14888A"/>
-    <text x="88" y="52" fill="#47666A" font-size="19" font-weight="600" letter-spacing="3">MCP + AGENT SKILL</text>
-    <text x="64" y="156" fill="#192A2D" font-size="88" font-weight="720" letter-spacing="-3">HK/MO</text>
-    <text x="64" y="241" fill="#192A2D" font-size="82" font-weight="720" letter-spacing="-3">Open Data</text>
-    <text x="68" y="298" fill="#3C5356" font-size="25" font-weight="550">Ask AI. Find official government data.</text>
-    <text x="69" y="344" fill="#638084" font-size="19" letter-spacing="1">SEARCH  /  VERIFY  /  VISUALIZE</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="t d">
+<title id="t">港澳公開數據</title>
+<desc id="d">讓 AI 幫你查找香港與澳門政府公開數據。右側以簡單路線、站點、停車場 P 標記及資料圖表線條作概念示意。</desc>
+<rect width="1200" height="380" rx="22" fill="#F8FAF9"/>
+<!-- left editorial typography -->
+<g font-family="Noto Sans CJK TC, PingFang TC, Microsoft JhengHei, sans-serif">
+  <circle cx="66" cy="64" r="6" fill="#198D8D"/>
+  <text x="84" y="71" font-size="19" font-weight="600" letter-spacing="2.1" fill="#617476">HK/MO OPEN DATA</text>
+  <text x="62" y="170" font-size="70" font-weight="700" letter-spacing="1" fill="#202E30">港澳公開數據</text>
+  <text x="65" y="229" font-size="27" font-weight="500" fill="#3F5255">一句話，讓 AI 幫你找到官方資料。</text>
+  <text x="65" y="279" font-size="20" font-weight="400" fill="#76898B">查找資料　·　整理數據　·　製作地圖</text>
+  <line x1="66" y1="322" x2="565" y2="322" stroke="#D9E4E1" stroke-width="1.3"/>
+  <text x="66" y="347" font-size="18" fill="#667F82">免費開源</text>
+  <circle cx="177" cy="342" r="3" fill="#C8D8D5"/>
+  <text x="197" y="347" font-size="18" fill="#667F82">MCP + Agent Skill</text>
+</g>
+<!-- clean, separately zoned route and data motifs; conceptual, not live results -->
+<g transform="translate(654 25)" font-family="Noto Sans CJK TC, PingFang TC, Microsoft JhengHei, sans-serif">
+  <rect x="2" y="16" width="525" height="320" rx="22" fill="#F1F6F4"/>
 
-  <g id="official-data-flow" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans CJK TC, sans-serif">
-    <rect x="650" y="39" width="489" height="299" rx="20" fill="#FFFFFF" stroke="#DCE5E1" stroke-width="2"/>
-    <text x="686" y="78" font-size="20" font-weight="650" fill="#3F5B5C">SOURCES</text>
-    <text x="1006" y="78" font-size="20" font-weight="650" fill="#3F5B5C">OUTPUT</text>
-    <path d="M785 141 C853 141 845 189 906 189" fill="none" stroke="#138C91" stroke-width="4" stroke-linecap="round"/>
-    <path d="M785 238 C852 238 850 189 906 189" fill="none" stroke="#D28357" stroke-width="4" stroke-linecap="round"/>
-    <path d="M948 189 H976 Q992 189 992 169 V135 Q992 123 1006 123 H1018" fill="none" stroke="#8AA2A3" stroke-width="3" stroke-linecap="round"/>
-    <path d="M948 189 H976 Q992 189 992 209 V239 Q992 252 1006 252 H1018" fill="none" stroke="#8AA2A3" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="785" cy="141" r="6" fill="#138C91"/>
-    <circle cx="785" cy="238" r="6" fill="#D28357"/>
-    <rect x="680" y="116" width="104" height="49" rx="13" fill="#E7F5F3"/>
-    <text x="715" y="148" fill="#096F73" font-size="26" font-weight="730">HK</text>
-    <rect x="680" y="213" width="104" height="49" rx="13" fill="#FCF1E9"/>
-    <text x="715" y="245" fill="#B5653F" font-size="26" font-weight="730">MO</text>
-    <circle cx="926" cy="189" r="26" fill="#193C40"/>
-    <text x="926" y="197" text-anchor="middle" fill="#FFFFFF" font-size="25" font-weight="710">AI</text>
-    <rect x="1014" y="100" width="103" height="49" rx="12" fill="#F1F5F2" stroke="#DCE5E1"/>
-    <path d="M1030 118 L1046 110 L1061 119 L1046 127 Z" fill="none" stroke="#14888A" stroke-width="2.3" stroke-linejoin="round"/>
-    <path d="M1030 118 V132 L1046 141 L1046 127 M1061 119 V133 L1046 141" fill="none" stroke="#14888A" stroke-width="2.3" stroke-linejoin="round"/>
-    <text x="1067" y="132" font-size="17" font-weight="650" fill="#38585B">MAP</text>
-    <rect x="1014" y="228" width="103" height="49" rx="12" fill="#F1F5F2" stroke="#DCE5E1"/>
-    <rect x="1030" y="242" width="33" height="22" rx="3" fill="none" stroke="#14888A" stroke-width="2.2"/>
-    <path d="M1030 250 H1063 M1041 242 V264 M1052 242 V264" stroke="#14888A" stroke-width="1.7"/>
-    <text x="1067" y="260" font-size="17" font-weight="650" fill="#38585B">DATA</text>
-    <text x="685" y="306" fill="#759093" font-size="17">Official data / Verified / Visualized</text>
+  <!-- a focused map motif on the left; route lines never enter the chart area -->
+  <text x="38" y="64" font-size="18" font-weight="600" letter-spacing="1" fill="#78918E">路線圖</text>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 146 C92 146 103 103 138 103 S185 153 218 153 S265 115 299 115" stroke="#218C8C" stroke-width="5.5"/>
+    <path d="M62 239 C102 239 105 198 142 198 S209 240 249 219 L295 198" stroke="#D99670" stroke-width="4.5"/>
   </g>
+  <!-- only five stations, spaced along the actual drawn polylines -->
+  <g fill="#FFFFFF" stroke="#218C8C" stroke-width="4">
+    <circle cx="138" cy="103" r="9"/>
+    <circle cx="218" cy="153" r="9"/>
+    <circle cx="299" cy="115" r="9"/>
+  </g>
+  <g fill="#FFFFFF" stroke="#D99670" stroke-width="4">
+    <circle cx="142" cy="198" r="8"/>
+    <circle cx="249" cy="219" r="8"/>
+  </g>
+  <!-- one parking marker, deliberately away from the data chart -->
+  <rect x="84" y="264" width="43" height="43" rx="11" fill="#FFFFFF" stroke="#218C8C" stroke-width="2"/>
+  <text x="105.5" y="295.5" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#218C8C">P</text>
+
+  <!-- deliberate visual separator; chart is a standalone region -->
+  <path d="M331 63 V295" stroke="#D7E4DF" stroke-width="2"/>
+  <text x="357" y="64" font-size="18" font-weight="600" letter-spacing="1" fill="#78918E">數據分析</text>
+  <rect x="351" y="96" width="148" height="198" rx="18" fill="#FFFFFF" stroke="#DBE6E2" stroke-width="1.5"/>
+  <!-- simple illustrative bar chart (no numbers = no fabricated statistics) -->
+  <line x1="373" y1="257" x2="479" y2="257" stroke="#CEDCD7" stroke-width="2" stroke-linecap="round"/>
+  <rect x="378" y="205" width="16" height="52" rx="5" fill="#C9DFD9"/>
+  <rect x="406" y="185" width="16" height="72" rx="5" fill="#9BC9BD"/>
+  <rect x="434" y="162" width="16" height="95" rx="5" fill="#62AB9C"/>
+  <rect x="462" y="139" width="16" height="118" rx="5" fill="#218C8C"/>
+  <path d="M372 130 H420" stroke="#DCE7E3" stroke-width="5" stroke-linecap="round"/>
+</g>
 </svg>
