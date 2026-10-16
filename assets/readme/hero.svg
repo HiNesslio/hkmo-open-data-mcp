@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="378" viewBox="0 0 1200 378" role="img" aria-labelledby="title desc">
+  <title id="title">HK/MO Open Data — official Hong Kong and Macao public data</title>
+  <desc id="desc">Official Hong Kong and Macao government data is verified and prepared by AI as maps or structured results. The data flow is conceptual.</desc>
+  <rect width="1200" height="378" rx="24" fill="#F5F7F5"/>
+  <g id="name-and-promise" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans CJK TC, sans-serif">
+    <rect x="66" y="42" width="9" height="9" rx="4.5" fill="#14888A"/>
+    <text x="88" y="52" fill="#47666A" font-size="19" font-weight="600" letter-spacing="3">MCP + AGENT SKILL</text>
+    <text x="64" y="156" fill="#192A2D" font-size="88" font-weight="720" letter-spacing="-3">HK/MO</text>
+    <text x="64" y="241" fill="#192A2D" font-size="82" font-weight="720" letter-spacing="-3">Open Data</text>
+    <text x="68" y="298" fill="#3C5356" font-size="25" font-weight="550">Ask AI. Find official government data.</text>
+    <text x="69" y="344" fill="#638084" font-size="19" letter-spacing="1">SEARCH  /  VERIFY  /  VISUALIZE</text>
+  </g>
+
+  <g id="official-data-flow" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans CJK TC, sans-serif">
+    <rect x="650" y="39" width="489" height="299" rx="20" fill="#FFFFFF" stroke="#DCE5E1" stroke-width="2"/>
+    <text x="686" y="78" font-size="20" font-weight="650" fill="#3F5B5C">SOURCES</text>
+    <text x="1006" y="78" font-size="20" font-weight="650" fill="#3F5B5C">OUTPUT</text>
+    <path d="M785 141 C853 141 845 189 906 189" fill="none" stroke="#138C91" stroke-width="4" stroke-linecap="round"/>
+    <path d="M785 238 C852 238 850 189 906 189" fill="none" stroke="#D28357" stroke-width="4" stroke-linecap="round"/>
+    <path d="M948 189 H976 Q992 189 992 169 V135 Q992 123 1006 123 H1018" fill="none" stroke="#8AA2A3" stroke-width="3" stroke-linecap="round"/>
+    <path d="M948 189 H976 Q992 189 992 209 V239 Q992 252 1006 252 H1018" fill="none" stroke="#8AA2A3" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="785" cy="141" r="6" fill="#138C91"/>
+    <circle cx="785" cy="238" r="6" fill="#D28357"/>
+    <rect x="680" y="116" width="104" height="49" rx="13" fill="#E7F5F3"/>
+    <text x="715" y="148" fill="#096F73" font-size="26" font-weight="730">HK</text>
+    <rect x="680" y="213" width="104" height="49" rx="13" fill="#FCF1E9"/>
+    <text x="715" y="245" fill="#B5653F" font-size="26" font-weight="730">MO</text>
+    <circle cx="926" cy="189" r="26" fill="#193C40"/>
+    <text x="926" y="197" text-anchor="middle" fill="#FFFFFF" font-size="25" font-weight="710">AI</text>
+    <rect x="1014" y="100" width="103" height="49" rx="12" fill="#F1F5F2" stroke="#DCE5E1"/>
+    <path d="M1030 118 L1046 110 L1061 119 L1046 127 Z" fill="none" stroke="#14888A" stroke-width="2.3" stroke-linejoin="round"/>
+    <path d="M1030 118 V132 L1046 141 L1046 127 M1061 119 V133 L1046 141" fill="none" stroke="#14888A" stroke-width="2.3" stroke-linejoin="round"/>
+    <text x="1067" y="132" font-size="17" font-weight="650" fill="#38585B">MAP</text>
+    <rect x="1014" y="228" width="103" height="49" rx="12" fill="#F1F5F2" stroke="#DCE5E1"/>
+    <rect x="1030" y="242" width="33" height="22" rx="3" fill="none" stroke="#14888A" stroke-width="2.2"/>
+    <path d="M1030 250 H1063 M1041 242 V264 M1052 242 V264" stroke="#14888A" stroke-width="1.7"/>
+    <text x="1067" y="260" font-size="17" font-weight="650" fill="#38585B">DATA</text>
+    <text x="685" y="306" fill="#759093" font-size="17">Official data / Verified / Visualized</text>
+  </g>
+</svg>
